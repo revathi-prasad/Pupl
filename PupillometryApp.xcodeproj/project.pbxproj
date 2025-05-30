@@ -1,0 +1,574 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXContainerItemProxy section */
+		E9C2D4492DE93AD8006F1CBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E9C2D4272DE93AD4006F1CBA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E9C2D42E2DE93AD5006F1CBA;
+			remoteInfo = PupillometryApp;
+		};
+		E9C2D4532DE93AD8006F1CBA /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = E9C2D4272DE93AD4006F1CBA /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = E9C2D42E2DE93AD5006F1CBA;
+			remoteInfo = PupillometryApp;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXFileReference section */
+		E9C2D42F2DE93AD5006F1CBA /* PupillometryApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PupillometryApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9C2D4482DE93AD8006F1CBA /* PupillometryAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PupillometryAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9C2D4522DE93AD8006F1CBA /* PupillometryAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PupillometryAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		E9C2D45A2DE93AD8006F1CBA /* Exceptions for "PupillometryApp" folder in "PupillometryApp" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = E9C2D42E2DE93AD5006F1CBA /* PupillometryApp */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
+/* Begin PBXFileSystemSynchronizedRootGroup section */
+		E9C2D4312DE93AD5006F1CBA /* PupillometryApp */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				E9C2D45A2DE93AD8006F1CBA /* Exceptions for "PupillometryApp" folder in "PupillometryApp" target */,
+			);
+			path = PupillometryApp;
+			sourceTree = "<group>";
+		};
+		E9C2D44B2DE93AD8006F1CBA /* PupillometryAppTests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PupillometryAppTests;
+			sourceTree = "<group>";
+		};
+		E9C2D4552DE93AD8006F1CBA /* PupillometryAppUITests */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = PupillometryAppUITests;
+			sourceTree = "<group>";
+		};
+/* End PBXFileSystemSynchronizedRootGroup section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		E9C2D42C2DE93AD5006F1CBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C2D4452DE93AD8006F1CBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C2D44F2DE93AD8006F1CBA /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		E9C2D4262DE93AD4006F1CBA = {
+			isa = PBXGroup;
+			children = (
+				E9C2D4312DE93AD5006F1CBA /* PupillometryApp */,
+				E9C2D44B2DE93AD8006F1CBA /* PupillometryAppTests */,
+				E9C2D4552DE93AD8006F1CBA /* PupillometryAppUITests */,
+				E9C2D4302DE93AD5006F1CBA /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		E9C2D4302DE93AD5006F1CBA /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				E9C2D42F2DE93AD5006F1CBA /* PupillometryApp.app */,
+				E9C2D4482DE93AD8006F1CBA /* PupillometryAppTests.xctest */,
+				E9C2D4522DE93AD8006F1CBA /* PupillometryAppUITests.xctest */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		E9C2D42E2DE93AD5006F1CBA /* PupillometryApp */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9C2D45B2DE93AD8006F1CBA /* Build configuration list for PBXNativeTarget "PupillometryApp" */;
+			buildPhases = (
+				E9C2D42B2DE93AD5006F1CBA /* Sources */,
+				E9C2D42C2DE93AD5006F1CBA /* Frameworks */,
+				E9C2D42D2DE93AD5006F1CBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			fileSystemSynchronizedGroups = (
+				E9C2D4312DE93AD5006F1CBA /* PupillometryApp */,
+			);
+			name = PupillometryApp;
+			packageProductDependencies = (
+			);
+			productName = PupillometryApp;
+			productReference = E9C2D42F2DE93AD5006F1CBA /* PupillometryApp.app */;
+			productType = "com.apple.product-type.application";
+		};
+		E9C2D4472DE93AD8006F1CBA /* PupillometryAppTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9C2D4602DE93AD8006F1CBA /* Build configuration list for PBXNativeTarget "PupillometryAppTests" */;
+			buildPhases = (
+				E9C2D4442DE93AD8006F1CBA /* Sources */,
+				E9C2D4452DE93AD8006F1CBA /* Frameworks */,
+				E9C2D4462DE93AD8006F1CBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E9C2D44A2DE93AD8006F1CBA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E9C2D44B2DE93AD8006F1CBA /* PupillometryAppTests */,
+			);
+			name = PupillometryAppTests;
+			packageProductDependencies = (
+			);
+			productName = PupillometryAppTests;
+			productReference = E9C2D4482DE93AD8006F1CBA /* PupillometryAppTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+		E9C2D4512DE93AD8006F1CBA /* PupillometryAppUITests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = E9C2D4632DE93AD8006F1CBA /* Build configuration list for PBXNativeTarget "PupillometryAppUITests" */;
+			buildPhases = (
+				E9C2D44E2DE93AD8006F1CBA /* Sources */,
+				E9C2D44F2DE93AD8006F1CBA /* Frameworks */,
+				E9C2D4502DE93AD8006F1CBA /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				E9C2D4542DE93AD8006F1CBA /* PBXTargetDependency */,
+			);
+			fileSystemSynchronizedGroups = (
+				E9C2D4552DE93AD8006F1CBA /* PupillometryAppUITests */,
+			);
+			name = PupillometryAppUITests;
+			packageProductDependencies = (
+			);
+			productName = PupillometryAppUITests;
+			productReference = E9C2D4522DE93AD8006F1CBA /* PupillometryAppUITests.xctest */;
+			productType = "com.apple.product-type.bundle.ui-testing";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		E9C2D4272DE93AD4006F1CBA /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1620;
+				LastUpgradeCheck = 1620;
+				TargetAttributes = {
+					E9C2D42E2DE93AD5006F1CBA = {
+						CreatedOnToolsVersion = 16.2;
+					};
+					E9C2D4472DE93AD8006F1CBA = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = E9C2D42E2DE93AD5006F1CBA;
+					};
+					E9C2D4512DE93AD8006F1CBA = {
+						CreatedOnToolsVersion = 16.2;
+						TestTargetID = E9C2D42E2DE93AD5006F1CBA;
+					};
+				};
+			};
+			buildConfigurationList = E9C2D42A2DE93AD5006F1CBA /* Build configuration list for PBXProject "PupillometryApp" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = E9C2D4262DE93AD4006F1CBA;
+			minimizedProjectReferenceProxies = 1;
+			preferredProjectObjectVersion = 77;
+			productRefGroup = E9C2D4302DE93AD5006F1CBA /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				E9C2D42E2DE93AD5006F1CBA /* PupillometryApp */,
+				E9C2D4472DE93AD8006F1CBA /* PupillometryAppTests */,
+				E9C2D4512DE93AD8006F1CBA /* PupillometryAppUITests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		E9C2D42D2DE93AD5006F1CBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C2D4462DE93AD8006F1CBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C2D4502DE93AD8006F1CBA /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		E9C2D42B2DE93AD5006F1CBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C2D4442DE93AD8006F1CBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		E9C2D44E2DE93AD8006F1CBA /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		E9C2D44A2DE93AD8006F1CBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E9C2D42E2DE93AD5006F1CBA /* PupillometryApp */;
+			targetProxy = E9C2D4492DE93AD8006F1CBA /* PBXContainerItemProxy */;
+		};
+		E9C2D4542DE93AD8006F1CBA /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = E9C2D42E2DE93AD5006F1CBA /* PupillometryApp */;
+			targetProxy = E9C2D4532DE93AD8006F1CBA /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		E9C2D45C2DE93AD8006F1CBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8N7UTU996X;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PupillometryApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		E9C2D45D2DE93AD8006F1CBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8N7UTU996X;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_FILE = PupillometryApp/Info.plist;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
+				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryApp;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		E9C2D45E2DE93AD8006F1CBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		E9C2D45F2DE93AD8006F1CBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		E9C2D4612DE93AD8006F1CBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8N7UTU996X;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PupillometryApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PupillometryApp";
+			};
+			name = Debug;
+		};
+		E9C2D4622DE93AD8006F1CBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8N7UTU996X;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryAppTests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/PupillometryApp.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/PupillometryApp";
+			};
+			name = Release;
+		};
+		E9C2D4642DE93AD8006F1CBA /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8N7UTU996X;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PupillometryApp;
+			};
+			name = Debug;
+		};
+		E9C2D4652DE93AD8006F1CBA /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = 8N7UTU996X;
+				GENERATE_INFOPLIST_FILE = YES;
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryAppUITests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_TARGET_NAME = PupillometryApp;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		E9C2D42A2DE93AD5006F1CBA /* Build configuration list for PBXProject "PupillometryApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9C2D45E2DE93AD8006F1CBA /* Debug */,
+				E9C2D45F2DE93AD8006F1CBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E9C2D45B2DE93AD8006F1CBA /* Build configuration list for PBXNativeTarget "PupillometryApp" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9C2D45C2DE93AD8006F1CBA /* Debug */,
+				E9C2D45D2DE93AD8006F1CBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E9C2D4602DE93AD8006F1CBA /* Build configuration list for PBXNativeTarget "PupillometryAppTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9C2D4612DE93AD8006F1CBA /* Debug */,
+				E9C2D4622DE93AD8006F1CBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		E9C2D4632DE93AD8006F1CBA /* Build configuration list for PBXNativeTarget "PupillometryAppUITests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				E9C2D4642DE93AD8006F1CBA /* Debug */,
+				E9C2D4652DE93AD8006F1CBA /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = E9C2D4272DE93AD4006F1CBA /* Project object */;
+}
