@@ -8,6 +8,11 @@
 
 import UIKit
 
+protocol TaskProtocol {
+    func start()
+    func stop()
+}
+
 protocol GradCPTTaskDelegate: AnyObject {
     func task(_ task: GradCPTTask, didPresentStimulus stimulus: GradCPTTask.Stimulus, at time: TimeInterval)
     func task(_ task: GradCPTTask, didReceiveResponse correct: Bool, reactionTime: TimeInterval)

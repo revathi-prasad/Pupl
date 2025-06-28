@@ -13,11 +13,6 @@ protocol MemoryTaskDelegate: AnyObject {
     func memoryTaskDidComplete(_ task: MemoryTask)
 }
 
-protocol TaskProtocol {
-    func start()
-    func stop()
-}
-
 class MemoryTask: TaskProtocol {
     
     // Enhanced data structure based on ChangeLocalizationTask
