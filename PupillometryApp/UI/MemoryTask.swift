@@ -30,7 +30,7 @@ class MemoryTask: TaskProtocol {
     
     private var gridView: MemoryGridView?
     private var currentTrial = 0
-    private var totalTrials = 10 // Reduced for initial testing
+    private var totalTrials = 5 // Start with even fewer for debugging
     private var trialStartTime: TimeInterval = 0
     private var timer: Timer?
     
@@ -143,10 +143,20 @@ class MemoryTask: TaskProtocol {
             
             // Schedule next trial immediately - don't wait
             print("🟦 MemoryTask: Starting next trial immediately")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
                 guard let self = self else { return }
                 print("🟦 MemoryTask: Starting next trial now")
                 self.startNextTrial()
+            }
+        }
+        
+        // Add timeout mechanism - auto-advance after 10 seconds if no response
+        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
+            guard let self = self else { return }
+            // Check if we're still waiting for response on this trial
+            if let gridView = self.gridView, gridView.isWaitingForResponse() {
+                print("⏰ MemoryTask: Trial timeout - auto-advancing")
+                gridView.forceResponse(correct: false, reactionTime: 10.0)
             }
         }
     }
@@ -231,42 +241,55 @@ class MemoryGridView: UIView {
     func showTestArray(completion: @escaping (Bool, TimeInterval) -> Void) {
         print("🔵 MemoryGridView: showTestArray() called")
         
-        // Create test colors with one change
-        testColors = initialColors
-        
-        // Select random square to change
-        changedIndex = Int.random(in: 0..<initialColors.count)
-        print("🔵 MemoryGridView: Will change square \(changedIndex) from \(initialColors[changedIndex])")
-        
-        // Pick a different color - fix the potential infinite loop
-        let availableColors = colors.filter { $0 != initialColors[changedIndex] }
-        guard !availableColors.isEmpty else {
-            print("❌ MemoryGridView: No available colors for change!")
-            return
-        }
-        
-        let newColor = availableColors.randomElement()!
-        testColors[changedIndex] = newColor
-        print("🔵 MemoryGridView: Changed square \(changedIndex) to \(newColor)")
-        
-        // Display test array
-        for (i, square) in squares.enumerated() {
-            if i < testColors.count {
-                square.backgroundColor = testColors[i]
-                square.isUserInteractionEnabled = true // ENABLE interaction for test phase!
-                square.isHidden = false
-                square.layer.borderColor = UIColor.darkGray.cgColor
-                square.layer.borderWidth = 2
-                print("🔵 MemoryGridView: Square \(i) enabled for interaction")
-            } else {
-                square.isHidden = true
+        // Ensure we're on main thread
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Create test colors with one change
+            self.testColors = self.initialColors
+            
+            // Select random square to change
+            self.changedIndex = Int.random(in: 0..<self.initialColors.count)
+            print("🔵 MemoryGridView: Will change square \(self.changedIndex) from \(self.initialColors[self.changedIndex])")
+            
+            // Pick a different color - fix the potential infinite loop
+            let availableColors = self.colors.filter { $0 != self.initialColors[self.changedIndex] }
+            guard !availableColors.isEmpty else {
+                print("❌ MemoryGridView: No available colors for change!")
+                return
+            }
+            
+            let newColor = availableColors.randomElement()!
+            self.testColors[self.changedIndex] = newColor
+            print("🔵 MemoryGridView: Changed square \(self.changedIndex) to \(newColor)")
+            
+            // Display test array
+            for (i, square) in self.squares.enumerated() {
+                if i < self.testColors.count {
+                    square.backgroundColor = self.testColors[i]
+                    square.isUserInteractionEnabled = true // ENABLE interaction for test phase!
+                    square.isHidden = false
+                    square.layer.borderColor = UIColor.darkGray.cgColor
+                    square.layer.borderWidth = 2
+                    print("🔵 MemoryGridView: Square \(i) enabled for interaction, backgroundColor: \(square.backgroundColor?.description ?? "nil")")
+                } else {
+                    square.isHidden = true
+                }
+            }
+            
+            // Store callback and presentation time
+            self.responseCallback = completion
+            self.presentationTime = CACurrentMediaTime()
+            print("🔵 MemoryGridView: Test array displayed, waiting for user tap. Callback stored: \(self.responseCallback != nil)")
+            
+            // Add visual feedback - make squares slightly larger to ensure they're tappable
+            self.squares.forEach { square in
+                if !square.isHidden && square.isUserInteractionEnabled {
+                    square.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
+                    print("🔵 MemoryGridView: Square scaled for better touch target")
+                }
             }
         }
-        
-        // Store callback and presentation time
-        responseCallback = completion
-        presentationTime = CACurrentMediaTime()
-        print("🔵 MemoryGridView: Test array displayed, waiting for user tap")
     }
     
     @objc private func squareTapped(_ gesture: UITapGestureRecognizer) {
@@ -277,6 +300,12 @@ class MemoryGridView: UIView {
         
         print("🔵 MemoryGridView: Square \(index) tapped!")
         
+        // Ensure we have a valid callback before proceeding
+        guard let callback = responseCallback else {
+            print("❌ MemoryGridView: No response callback available!")
+            return
+        }
+        
         // Calculate reaction time
         let reactionTime = CACurrentMediaTime() - presentationTime
         
@@ -284,29 +313,45 @@ class MemoryGridView: UIView {
         let correct = (index == changedIndex)
         print("🔵 MemoryGridView: Tapped square \(index), changed square was \(changedIndex), correct: \(correct)")
         
-        // Highlight selected square
+        // Highlight selected square immediately
         square.layer.borderColor = UIColor.white.cgColor
         square.layer.borderWidth = 4
         
-        // Show correct answer briefly
+        // Show correct answer briefly if wrong
         if !correct {
             squares[changedIndex].layer.borderColor = UIColor.green.cgColor
             squares[changedIndex].layer.borderWidth = 4
         }
         
-        // Disable interaction
+        // Disable all interaction immediately
         squares.forEach { $0.isUserInteractionEnabled = false }
         
-        print("🔵 MemoryGridView: Calling response callback")
-        
-        // Store callback temporarily to avoid clearing it before calling
-        let callback = responseCallback
+        // Clear callback to prevent double-tapping
         responseCallback = nil
         
-        // Call completion on main queue
-        DispatchQueue.main.async {
-            callback?(correct, reactionTime)
-        }
+        print("🔵 MemoryGridView: Calling response callback immediately")
+        
+        // Call completion callback immediately - no async delay
+        callback(correct, reactionTime)
+        
+        print("🔵 MemoryGridView: Response callback completed")
+    }
+    
+    func isWaitingForResponse() -> Bool {
+        return responseCallback != nil
+    }
+    
+    func forceResponse(correct: Bool, reactionTime: TimeInterval) {
+        guard let callback = responseCallback else { return }
+        responseCallback = nil
+        
+        print("🔵 MemoryGridView: Forcing response due to timeout")
+        
+        // Disable all interaction
+        squares.forEach { $0.isUserInteractionEnabled = false }
+        
+        // Call the callback
+        callback(correct, reactionTime)
     }
     
     private let colors: [UIColor] = [
