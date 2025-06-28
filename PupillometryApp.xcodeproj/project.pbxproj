@@ -6,6 +6,20 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		E982A7692E078E14006571AB /* FirebaseAnalytics in Frameworks */ = {isa = PBXBuildFile; productRef = E982A7682E078E14006571AB /* FirebaseAnalytics */; };
+		E982A76B2E078E14006571AB /* FirebaseAuth in Frameworks */ = {isa = PBXBuildFile; productRef = E982A76A2E078E14006571AB /* FirebaseAuth */; };
+		E982A76D2E078E14006571AB /* FirebaseCore in Frameworks */ = {isa = PBXBuildFile; productRef = E982A76C2E078E14006571AB /* FirebaseCore */; };
+		E982A76F2E078E14006571AB /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = E982A76E2E078E14006571AB /* FirebaseDatabase */; };
+		E982A7712E078E14006571AB /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = E982A7702E078E14006571AB /* FirebaseStorage */; };
+		E9B107752DF9168000C90B56 /* podfile in Resources */ = {isa = PBXBuildFile; fileRef = E9B107742DF9167800C90B56 /* podfile */; };
+		E9C2D4682DE93C87006F1CBA /* ARKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C2D4672DE93C87006F1CBA /* ARKit.framework */; };
+		E9C2D46A2DE93CBC006F1CBA /* Vision.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C2D4692DE93CBC006F1CBA /* Vision.framework */; };
+		E9C2D46C2DE93CC8006F1CBA /* AVFoundation.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C2D46B2DE93CC8006F1CBA /* AVFoundation.framework */; };
+		E9C2D46E2DE93CD0006F1CBA /* CoreML.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C2D46D2DE93CD0006F1CBA /* CoreML.framework */; };
+		E9C2D4702DE93CDA006F1CBA /* SceneKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = E9C2D46F2DE93CDA006F1CBA /* SceneKit.framework */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXContainerItemProxy section */
 		E9C2D4492DE93AD8006F1CBA /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -24,9 +38,16 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		E9B107742DF9167800C90B56 /* podfile */ = {isa = PBXFileReference; lastKnownFileType = text; path = podfile; sourceTree = "<group>"; xcLanguageSpecificationIdentifier = xcode.lang.ruby; };
 		E9C2D42F2DE93AD5006F1CBA /* PupillometryApp.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PupillometryApp.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9C2D4482DE93AD8006F1CBA /* PupillometryAppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PupillometryAppTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		E9C2D4522DE93AD8006F1CBA /* PupillometryAppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = PupillometryAppUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		E9C2D4672DE93C87006F1CBA /* ARKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ARKit.framework; path = System/Library/Frameworks/ARKit.framework; sourceTree = SDKROOT; };
+		E9C2D4692DE93CBC006F1CBA /* Vision.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Vision.framework; path = System/Library/Frameworks/Vision.framework; sourceTree = SDKROOT; };
+		E9C2D46B2DE93CC8006F1CBA /* AVFoundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AVFoundation.framework; path = System/Library/Frameworks/AVFoundation.framework; sourceTree = SDKROOT; };
+		E9C2D46D2DE93CD0006F1CBA /* CoreML.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreML.framework; path = System/Library/Frameworks/CoreML.framework; sourceTree = SDKROOT; };
+		E9C2D46F2DE93CDA006F1CBA /* SceneKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SceneKit.framework; path = System/Library/Frameworks/SceneKit.framework; sourceTree = SDKROOT; };
+		E9E0BCEB2E0688A000D9F52D /* PupillometryAppTests */ = {isa = PBXFileReference; lastKnownFileType = folder; path = PupillometryAppTests; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -48,11 +69,6 @@
 			path = PupillometryApp;
 			sourceTree = "<group>";
 		};
-		E9C2D44B2DE93AD8006F1CBA /* PupillometryAppTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = PupillometryAppTests;
-			sourceTree = "<group>";
-		};
 		E9C2D4552DE93AD8006F1CBA /* PupillometryAppUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = PupillometryAppUITests;
@@ -65,6 +81,16 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9C2D46A2DE93CBC006F1CBA /* Vision.framework in Frameworks */,
+				E9C2D4682DE93C87006F1CBA /* ARKit.framework in Frameworks */,
+				E982A7692E078E14006571AB /* FirebaseAnalytics in Frameworks */,
+				E982A7712E078E14006571AB /* FirebaseStorage in Frameworks */,
+				E9C2D4702DE93CDA006F1CBA /* SceneKit.framework in Frameworks */,
+				E9C2D46E2DE93CD0006F1CBA /* CoreML.framework in Frameworks */,
+				E982A76B2E078E14006571AB /* FirebaseAuth in Frameworks */,
+				E982A76F2E078E14006571AB /* FirebaseDatabase in Frameworks */,
+				E982A76D2E078E14006571AB /* FirebaseCore in Frameworks */,
+				E9C2D46C2DE93CC8006F1CBA /* AVFoundation.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -85,13 +111,23 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		91016507004C0877929CAD13 /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		E9C2D4262DE93AD4006F1CBA = {
 			isa = PBXGroup;
 			children = (
+				E9B107742DF9167800C90B56 /* podfile */,
 				E9C2D4312DE93AD5006F1CBA /* PupillometryApp */,
-				E9C2D44B2DE93AD8006F1CBA /* PupillometryAppTests */,
+				E9E0BCEB2E0688A000D9F52D /* PupillometryAppTests */,
 				E9C2D4552DE93AD8006F1CBA /* PupillometryAppUITests */,
+				E9C2D4662DE93C87006F1CBA /* Frameworks */,
 				E9C2D4302DE93AD5006F1CBA /* Products */,
+				91016507004C0877929CAD13 /* Pods */,
 			);
 			sourceTree = "<group>";
 		};
@@ -103,6 +139,18 @@
 				E9C2D4522DE93AD8006F1CBA /* PupillometryAppUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		E9C2D4662DE93C87006F1CBA /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				E9C2D46F2DE93CDA006F1CBA /* SceneKit.framework */,
+				E9C2D46D2DE93CD0006F1CBA /* CoreML.framework */,
+				E9C2D46B2DE93CC8006F1CBA /* AVFoundation.framework */,
+				E9C2D4692DE93CBC006F1CBA /* Vision.framework */,
+				E9C2D4672DE93C87006F1CBA /* ARKit.framework */,
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -124,8 +172,6 @@
 				E9C2D4312DE93AD5006F1CBA /* PupillometryApp */,
 			);
 			name = PupillometryApp;
-			packageProductDependencies = (
-			);
 			productName = PupillometryApp;
 			productReference = E9C2D42F2DE93AD5006F1CBA /* PupillometryApp.app */;
 			productType = "com.apple.product-type.application";
@@ -143,12 +189,7 @@
 			dependencies = (
 				E9C2D44A2DE93AD8006F1CBA /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				E9C2D44B2DE93AD8006F1CBA /* PupillometryAppTests */,
-			);
 			name = PupillometryAppTests;
-			packageProductDependencies = (
-			);
 			productName = PupillometryAppTests;
 			productReference = E9C2D4482DE93AD8006F1CBA /* PupillometryAppTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -170,8 +211,6 @@
 				E9C2D4552DE93AD8006F1CBA /* PupillometryAppUITests */,
 			);
 			name = PupillometryAppUITests;
-			packageProductDependencies = (
-			);
 			productName = PupillometryAppUITests;
 			productReference = E9C2D4522DE93AD8006F1CBA /* PupillometryAppUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -208,6 +247,9 @@
 			);
 			mainGroup = E9C2D4262DE93AD4006F1CBA;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				E982A7672E078E14006571AB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = E9C2D4302DE93AD5006F1CBA /* Products */;
 			projectDirPath = "";
@@ -225,6 +267,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				E9B107752DF9168000C90B56 /* podfile in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -287,23 +330,36 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8N7UTU996X;
+				EXCLUDED_ARCHS = "$(inherited)";
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PupillometryApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PupillometryApp;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to track pupil movement for ADHD and CNS disease assessment";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "This app uses face detection to accurately measure pupil responses during cognitive tasks";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app needs microphone access for video recording.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs photo library access to save assessment recordings.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryApp;
+				"OTHER_SWIFT_FLAGS[arch=*]" = "-D DEBUG";
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryAppRev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -315,23 +371,34 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_IDENTITY = "Apple Development";
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = 8N7UTU996X;
+				"EXCLUDED_ARCHS[sdk=iphonesimulator*]" = "$(inherited)";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = PupillometryApp/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = PupillometryApp;
+				INFOPLIST_KEY_NSCameraUsageDescription = "This app uses the camera to track pupil movement for ADHD and CNS disease assessment";
+				INFOPLIST_KEY_NSFaceIDUsageDescription = "This app uses face detection to accurately measure pupil responses during cognitive tasks";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "This app needs microphone access for video recording.";
+				INFOPLIST_KEY_NSPhotoLibraryUsageDescription = "This app needs photo library access to save assessment recordings.";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
+				INFOPLIST_KEY_UIRequiredDeviceCapabilities = armv7;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
 				MARKETING_VERSION = 1.0;
-				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryApp;
+				PRODUCT_BUNDLE_IDENTIFIER = Pupl.PupillometryAppRev;
 				PRODUCT_NAME = "$(TARGET_NAME)";
+				PROVISIONING_PROFILE_SPECIFIER = "";
 				SWIFT_EMIT_LOC_STRINGS = YES;
 				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -390,7 +457,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -447,7 +514,7 @@
 				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
 				GCC_WARN_UNUSED_FUNCTION = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
-				IPHONEOS_DEPLOYMENT_TARGET = 18.2;
+				IPHONEOS_DEPLOYMENT_TARGET = 15.6;
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -569,6 +636,45 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		E982A7672E078E14006571AB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 11.14.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		E982A7682E078E14006571AB /* FirebaseAnalytics */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E982A7672E078E14006571AB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAnalytics;
+		};
+		E982A76A2E078E14006571AB /* FirebaseAuth */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E982A7672E078E14006571AB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseAuth;
+		};
+		E982A76C2E078E14006571AB /* FirebaseCore */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E982A7672E078E14006571AB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseCore;
+		};
+		E982A76E2E078E14006571AB /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E982A7672E078E14006571AB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		E982A7702E078E14006571AB /* FirebaseStorage */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = E982A7672E078E14006571AB /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseStorage;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = E9C2D4272DE93AD4006F1CBA /* Project object */;
 }
