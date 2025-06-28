@@ -269,6 +269,35 @@ class AssessmentViewController: UIViewController {
             task.recordResponse()
         }
     }
+    
+    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
+        print("🤔 AssessmentViewController: shouldPerformSegue called with identifier: \(identifier)")
+        
+        if identifier == "showResults" {
+            // Only allow the showResults segue if we're actually ready to show results
+            let buttonTitle = stopTestButton.title(for: .normal) ?? ""
+            let shouldGo = (buttonTitle == "Show Results")
+            print("🤔 Should perform showResults segue? \(shouldGo) (button title: '\(buttonTitle)')")
+            return shouldGo
+        }
+        
+        return true
+    }
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        print("📱 AssessmentViewController: prepare(for segue) called with identifier: \(segue.identifier ?? "nil")")
+        
+        if segue.identifier == "showResults" {
+            if let resultsVC = segue.destination as? ResultsViewController {
+                print("✅ Successfully preparing segue to ResultsViewController")
+                // Any setup needed for results can be done here
+            } else {
+                print("❌ ERROR: Segue destination is not ResultsViewController! It's: \(type(of: segue.destination))")
+            }
+        } else {
+            print("⚠️ Unknown segue identifier: \(segue.identifier ?? "nil")")
+        }
+    }
 }
 
 extension AssessmentViewController: GradCPTTaskDelegate {
@@ -393,34 +422,5 @@ extension AssessmentViewController: MemoryTaskDelegate {
         testDisplayView.subviews.forEach { $0.removeFromSuperview() }
         
         print("✅ AssessmentViewController: Ready to show results")
-    }
-    
-    override func shouldPerformSegue(withIdentifier identifier: String, sender: Any?) -> Bool {
-        print("🤔 AssessmentViewController: shouldPerformSegue called with identifier: \(identifier)")
-        
-        if identifier == "showResults" {
-            // Only allow the showResults segue if we're actually ready to show results
-            let buttonTitle = stopTestButton.title(for: .normal) ?? ""
-            let shouldGo = (buttonTitle == "Show Results")
-            print("🤔 Should perform showResults segue? \(shouldGo) (button title: '\(buttonTitle)')")
-            return shouldGo
-        }
-        
-        return true
-    }
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        print("📱 AssessmentViewController: prepare(for segue) called with identifier: \(segue.identifier ?? "nil")")
-        
-        if segue.identifier == "showResults" {
-            if let resultsVC = segue.destination as? ResultsViewController {
-                print("✅ Successfully preparing segue to ResultsViewController")
-                // Any setup needed for results can be done here
-            } else {
-                print("❌ ERROR: Segue destination is not ResultsViewController! It's: \(type(of: segue.destination))")
-            }
-        } else {
-            print("⚠️ Unknown segue identifier: \(segue.identifier ?? "nil")")
-        }
     }
 }

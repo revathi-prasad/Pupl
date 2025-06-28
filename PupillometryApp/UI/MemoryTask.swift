@@ -43,7 +43,13 @@ class MemoryTask: TaskProtocol {
         print("🟦 MemoryTask: Starting with gridView")
         self.gridView = gridView
         currentTrial = 0
-        startNextTrial()
+        
+        // Add a small delay to ensure the view is properly set up
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
+            guard let self = self else { return }
+            print("🟦 MemoryTask: Starting first trial after delay")
+            self.startNextTrial()
+        }
     }
     
     func start() {
@@ -135,9 +141,9 @@ class MemoryTask: TaskProtocol {
             // Report response
             self.delegate?.memoryTask(self, didReceiveResponse: correct, reactionTime: reactionTime)
             
-            // Schedule next trial
-            print("🟦 MemoryTask: Scheduling next trial in 1.5 seconds")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
+            // Schedule next trial immediately - don't wait
+            print("🟦 MemoryTask: Starting next trial immediately")
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
                 guard let self = self else { return }
                 print("🟦 MemoryTask: Starting next trial now")
                 self.startNextTrial()
@@ -292,8 +298,15 @@ class MemoryGridView: UIView {
         squares.forEach { $0.isUserInteractionEnabled = false }
         
         print("🔵 MemoryGridView: Calling response callback")
-        // Call completion
-        responseCallback?(correct, reactionTime)
+        
+        // Store callback temporarily to avoid clearing it before calling
+        let callback = responseCallback
+        responseCallback = nil
+        
+        // Call completion on main queue
+        DispatchQueue.main.async {
+            callback?(correct, reactionTime)
+        }
     }
     
     private let colors: [UIColor] = [
