@@ -1,17 +1,10 @@
 //
-//  MemoryTask.swift
+//  MemoryTask.swift (Enhanced with ChangeLocalizationTask Logic)
 //  PupillometryApp
 //
 //  Created by Revathi Prasad on 10/06/25.
 //
 
-//import UIKit
-//
-//class MemoryTask: NSObject {
-//
-//}
-
-// MemoryTask.swift
 import UIKit
 
 protocol MemoryTaskDelegate: AnyObject {
@@ -26,30 +19,84 @@ protocol TaskProtocol {
 }
 
 class MemoryTask: TaskProtocol {
+    
+    // Enhanced data structure based on ChangeLocalizationTask
+    struct TrialArray {
+        let colors: [UIColor]
+        let changedIndex: Int
+        let originalColor: UIColor
+        let newColor: UIColor
+        let setSize: Int
+        let trialNumber: Int
+    }
+    
     weak var delegate: MemoryTaskDelegate?
     
     private var gridView: MemoryGridView?
+    private var trials: [TrialArray] = []
     private var currentTrial = 0
-    private var totalTrials = 5 // Start with even fewer for debugging
     private var trialStartTime: TimeInterval = 0
     private var timer: Timer?
     
-    private let colors: [UIColor] = [
-        .systemRed, .systemGreen, .systemBlue,
-        .systemYellow, .systemPurple, .systemCyan
+    // Research-based parameters (reduced for faster testing)
+    private let totalTrials = 30 // Reduced from 240 for testing, but still substantial
+    private let setSizes = [4, 6, 8] // Different working memory loads
+    private let encodingDuration: TimeInterval = 0.5 // 500ms to view array
+    private let retentionInterval: TimeInterval = 1.0 // 1000ms delay
+    private let responseWindow: TimeInterval = 3.0 // 3 seconds to respond
+    
+    // Enhanced color palette
+    private let availableColors: [UIColor] = [
+        .systemRed, .systemGreen, .systemBlue, .systemYellow,
+        .systemPurple, .systemOrange, .systemPink, .systemTeal,
+        .systemIndigo, .systemBrown
     ]
     
-    func start(with gridView: MemoryGridView) {
-        print("🟦 MemoryTask: Starting with gridView")
-        self.gridView = gridView
-        currentTrial = 0
+    func generateTrials() {
+        print("🎯 MemoryTask: Generating \(totalTrials) trials...")
+        trials.removeAll()
         
-        // Add a small delay to ensure the view is properly set up
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-            guard let self = self else { return }
-            print("🟦 MemoryTask: Starting first trial after delay")
-            self.startNextTrial()
+        for trialNum in 1...totalTrials {
+            // Cycle through set sizes for progressive difficulty
+            let setSize = setSizes[(trialNum - 1) % setSizes.count]
+            
+            // Select random colors for this trial
+            let shuffledColors = availableColors.shuffled()
+            let trialColors = Array(shuffledColors.prefix(setSize))
+            
+            // Pick which item will change
+            let changedIndex = Int.random(in: 0..<setSize)
+            let originalColor = trialColors[changedIndex]
+            
+            // Pick a new color that's different from the original
+            let remainingColors = availableColors.filter { $0 != originalColor }
+            let newColor = remainingColors.randomElement() ?? .systemGray
+            
+            let trial = TrialArray(
+                colors: trialColors,
+                changedIndex: changedIndex,
+                originalColor: originalColor,
+                newColor: newColor,
+                setSize: setSize,
+                trialNumber: trialNum
+            )
+            
+            trials.append(trial)
         }
+        
+        print("✅ MemoryTask: Generated \(trials.count) trials")
+    }
+    
+    func start(with gridView: MemoryGridView) {
+        print("🟦 MemoryTask: Starting with research-based protocol")
+        self.gridView = gridView
+        
+        if trials.isEmpty {
+            generateTrials()
+        }
+        
+        currentTrial = 0
+        presentNextTrial()
     }
     
     func start() {
@@ -57,118 +104,115 @@ class MemoryTask: TaskProtocol {
     }
     
     func stop() {
+        print("⏹️ MemoryTask: Stopping task")
         timer?.invalidate()
         timer = nil
     }
     
-    private func startNextTrial() {
-        print("🟦 MemoryTask: startNextTrial() - currentTrial: \(currentTrial), totalTrials: \(totalTrials)")
-        
-        guard currentTrial < totalTrials else {
-            print("🟦 MemoryTask: All trials completed!")
+    private func presentNextTrial() {
+        guard currentTrial < trials.count else {
+            print("🎯 MemoryTask: All trials completed!")
             delegate?.memoryTaskDidComplete(self)
             return
         }
         
-        currentTrial += 1
-        print("🟦 MemoryTask: Starting trial \(currentTrial)/\(totalTrials)")
-        delegate?.memoryTask(self, didStartTrial: currentTrial, total: totalTrials)
-        
-        // Configure grid for current trial
-        configureMemoryGrid()
-        
-        // Show array briefly
+        let trial = trials[currentTrial]
         trialStartTime = CACurrentMediaTime()
-        print("🟦 MemoryTask: Showing initial array for 1.5 seconds")
         
-        // Schedule test phase
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1.5) { [weak self] in
-            print("🟦 MemoryTask: Showing mask")
-            self?.showMask()
+        print("🔄 MemoryTask: Presenting trial \(trial.trialNumber), set size \(trial.setSize)")
+        
+        // Notify delegate about trial start
+        delegate?.memoryTask(self, didStartTrial: trial.trialNumber, total: totalTrials)
+        
+        // Configure grid for this trial
+        configureMemoryGrid(for: trial)
+        
+        // Phase 1: Encoding (show array for 500ms)
+        print("🟦 MemoryTask: Phase 1 - Encoding (\(encodingDuration)s)")
+        
+        // Phase 2: Retention interval (blank/mask for 1000ms)
+        DispatchQueue.main.asyncAfter(deadline: .now() + encodingDuration) { [weak self] in
+            print("🟦 MemoryTask: Phase 2 - Retention interval (\(self?.retentionInterval ?? 1.0)s)")
+            self?.showRetentionPhase()
             
-            // After mask, show test array
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
-                print("🟦 MemoryTask: Showing test array - waiting for user response")
-                self?.showTestArray()
+            // Phase 3: Test phase (show changed array)
+            DispatchQueue.main.asyncAfter(deadline: .now() + (self?.retentionInterval ?? 1.0)) { [weak self] in
+                print("🟦 MemoryTask: Phase 3 - Test phase (\(self?.responseWindow ?? 3.0)s)")
+                self?.showTestPhase(for: trial)
             }
+        }
+        
+        // Auto-advance timer for the entire trial
+        timer = Timer.scheduledTimer(withTimeInterval: encodingDuration + retentionInterval + responseWindow, repeats: false) { [weak self] _ in
+            self?.advanceToNextTrial()
         }
     }
     
-    private func configureMemoryGrid() {
+    private func configureMemoryGrid(for trial: TrialArray) {
         guard let gridView = gridView else { 
             print("❌ MemoryTask: No gridView available!")
             return 
         }
         
-        // Determine set size based on trial progression
-        var setSize = 6
-        if currentTrial <= 60 {
-            setSize = 2
-        } else if currentTrial <= 120 {
-            setSize = 4
-        }
+        print("🟦 MemoryTask: Configuring grid for trial \(trial.trialNumber) with setSize: \(trial.setSize)")
         
-        print("🟦 MemoryTask: Configuring grid with setSize: \(setSize)")
-        
-        // Generate random colors for squares
-        var squareColors: [UIColor] = []
-        for i in 0..<setSize {
-            if let color = colors.randomElement() {
-                squareColors.append(color)
-                print("🟦 MemoryTask: Square \(i): \(color)")
-            }
-        }
-        
-        print("🟦 MemoryTask: Calling gridView.configure() with \(squareColors.count) colors")
-        gridView.configure(with: squareColors)
+        // Configure grid with the trial's colors for encoding phase
+        gridView.configure(with: trial.colors)
     }
     
-    private func showMask() {
-        // Show masking pattern
-        gridView?.showMask()
+    private func showRetentionPhase() {
+        // Show blank/mask screen during retention interval
+        gridView?.showRetentionPhase()
     }
     
-    private func showTestArray() {
-        // Show test array with one changed color
-        gridView?.showTestArray { [weak self] correct, reactionTime in
-            guard let self = self else { 
-                print("❌ MemoryTask: Self deallocated in showTestArray callback")
-                return 
-            }
+    private func showTestPhase(for trial: TrialArray) {
+        // Show test array with one color changed
+        gridView?.showTestPhase(trial: trial) { [weak self] correct, reactionTime in
+            guard let self = self else { return }
             
             print("🟦 MemoryTask: Received response - correct: \(correct), RT: \(reactionTime)")
             
-            // Report response
+            // Report response to delegate
             self.delegate?.memoryTask(self, didReceiveResponse: correct, reactionTime: reactionTime)
             
-            // Schedule next trial immediately - don't wait
-            print("🟦 MemoryTask: Starting next trial immediately")
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) { [weak self] in
-                guard let self = self else { return }
-                print("🟦 MemoryTask: Starting next trial now")
-                self.startNextTrial()
-            }
-        }
-        
-        // Add timeout mechanism - auto-advance after 10 seconds if no response
-        DispatchQueue.main.asyncAfter(deadline: .now() + 10.0) { [weak self] in
-            guard let self = self else { return }
-            // Check if we're still waiting for response on this trial
-            if let gridView = self.gridView, gridView.isWaitingForResponse() {
-                print("⏰ MemoryTask: Trial timeout - auto-advancing")
-                gridView.forceResponse(correct: false, reactionTime: 10.0)
-            }
+            // Advance to next trial
+            self.advanceToNextTrial()
         }
     }
+    
+    private func advanceToNextTrial() {
+        timer?.invalidate()
+        currentTrial += 1
+        
+        // Small delay before next trial
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            self?.presentNextTrial()
+        }
+    }
+    
+    func recordResponse(selectedIndex: Int) {
+        guard currentTrial < trials.count else { return }
+        
+        let trial = trials[currentTrial]
+        let isCorrect = selectedIndex == trial.changedIndex
+        let reactionTime = CACurrentMediaTime() - trialStartTime - encodingDuration - retentionInterval
+        
+        print("👆 MemoryTask: Response - Selected: \(selectedIndex), Correct: \(trial.changedIndex), RT: \(String(format: "%.3f", reactionTime))s")
+        
+        delegate?.memoryTask(self, didReceiveResponse: isCorrect, reactionTime: reactionTime)
+        
+        // Immediately move to next trial on response
+        advanceToNextTrial()
+    }
+    
 }
 
 class MemoryGridView: UIView {
     private var squares: [UIView] = []
-    private var initialColors: [UIColor] = []
-    private var testColors: [UIColor] = []
-    private var changedIndex: Int = 0
+    private var currentTrial: MemoryTask.TrialArray?
     private var responseCallback: ((Bool, TimeInterval) -> Void)?
-    private var presentationTime: TimeInterval = 0
+    private var testPhaseStartTime: TimeInterval = 0
+    private var maxSquares = 8 // Support up to 8 squares for different set sizes
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -181,181 +225,172 @@ class MemoryGridView: UIView {
     }
     
     private func setupGrid() {
-        // Create 3x2 grid of squares
-        let squareSize: CGFloat = 80
-        let spacing: CGFloat = 20
+        // Create adaptive grid that can handle 4, 6, or 8 squares
+        let squareSize: CGFloat = 70
+        let spacing: CGFloat = 15
         
-        for row in 0..<2 {
-            for col in 0..<3 {
-                let x = CGFloat(col) * (squareSize + spacing)
-                let y = CGFloat(row) * (squareSize + spacing)
-                
-                let square = UIView(frame: CGRect(x: x, y: y, width: squareSize, height: squareSize))
-                square.backgroundColor = .lightGray
-                square.layer.borderWidth = 2
-                square.layer.borderColor = UIColor.darkGray.cgColor
-                
-                // Add tap gesture
-                let tapGesture = UITapGestureRecognizer(target: self, action: #selector(squareTapped(_:)))
-                square.addGestureRecognizer(tapGesture)
-                square.isUserInteractionEnabled = true
-                
-                addSubview(square)
-                squares.append(square)
-            }
+        // Create maximum of 8 squares arranged in optimal patterns
+        for i in 0..<maxSquares {
+            let square = UIView()
+            square.backgroundColor = .lightGray
+            square.layer.borderWidth = 2
+            square.layer.borderColor = UIColor.darkGray.cgColor
+            square.layer.cornerRadius = 8
+            square.isHidden = true // Initially hidden
+            
+            // Add tap gesture
+            let tapGesture = UITapGestureRecognizer(target: self, action: #selector(squareTapped(_:)))
+            square.addGestureRecognizer(tapGesture)
+            square.isUserInteractionEnabled = false
+            square.tag = i
+            
+            addSubview(square)
+            squares.append(square)
+        }
+    }
+    
+    private func layoutSquares(for setSize: Int) {
+        let squareSize: CGFloat = 70
+        let spacing: CGFloat = 15
+        
+        // Determine grid layout based on set size
+        let layout = gridLayoutFor(setSize: setSize)
+        
+        let totalWidth = CGFloat(layout.columns) * squareSize + CGFloat(layout.columns - 1) * spacing
+        let totalHeight = CGFloat(layout.rows) * squareSize + CGFloat(layout.rows - 1) * spacing
+        
+        let startX = (bounds.width - totalWidth) / 2
+        let startY = (bounds.height - totalHeight) / 2
+        
+        for i in 0..<setSize {
+            let row = i / layout.columns
+            let col = i % layout.columns
+            
+            let x = startX + CGFloat(col) * (squareSize + spacing)
+            let y = startY + CGFloat(row) * (squareSize + spacing)
+            
+            squares[i].frame = CGRect(x: x, y: y, width: squareSize, height: squareSize)
+            squares[i].isHidden = false
+        }
+        
+        // Hide unused squares
+        for i in setSize..<maxSquares {
+            squares[i].isHidden = true
+        }
+    }
+    
+    private func gridLayoutFor(setSize: Int) -> (rows: Int, columns: Int) {
+        switch setSize {
+        case 4: return (2, 2)
+        case 6: return (2, 3)
+        case 8: return (2, 4)
+        default: return (2, 2)
         }
     }
     
     func configure(with colors: [UIColor]) {
-        print("🔵 MemoryGridView: configure() called with \(colors.count) colors")
-        initialColors = colors
+        print("🔵 MemoryGridView: Encoding phase - showing \(colors.count) colors")
         
-        // Reset squares
+        // Layout squares for this set size
+        layoutSquares(for: colors.count)
+        
+        // Show encoding array
         for (i, square) in squares.enumerated() {
             if i < colors.count {
                 square.backgroundColor = colors[i]
                 square.layer.borderColor = UIColor.darkGray.cgColor
                 square.layer.borderWidth = 2
-                square.isUserInteractionEnabled = false // Disabled during initial display
-                square.isHidden = false
-                print("🔵 MemoryGridView: Square \(i) set to color \(colors[i]), interaction disabled")
-            } else {
-                square.isHidden = true
-                print("🔵 MemoryGridView: Square \(i) hidden")
+                square.isUserInteractionEnabled = false // No interaction during encoding
+                square.transform = .identity
+                print("🔵 MemoryGridView: Encoding square \(i) - \(colors[i])")
             }
         }
     }
     
-    func showMask() {
-        print("🔵 MemoryGridView: showMask() called")
-        // Show masking pattern
-        for (i, square) in squares.enumerated() {
+    func showRetentionPhase() {
+        print("🔵 MemoryGridView: Retention phase - masking display")
+        
+        // Hide all squares during retention (blank screen)
+        squares.forEach { square in
             if !square.isHidden {
                 square.backgroundColor = .darkGray
                 square.isUserInteractionEnabled = false
-                print("🔵 MemoryGridView: Square \(i) masked")
             }
         }
     }
     
-    func showTestArray(completion: @escaping (Bool, TimeInterval) -> Void) {
-        print("🔵 MemoryGridView: showTestArray() called")
+    func showTestPhase(trial: MemoryTask.TrialArray, completion: @escaping (Bool, TimeInterval) -> Void) {
+        print("🔵 MemoryGridView: Test phase - showing changed array")
         
-        // Ensure we're on main thread
-        DispatchQueue.main.async { [weak self] in
-            guard let self = self else { return }
-            
-            // Create test colors with one change
-            self.testColors = self.initialColors
-            
-            // Select random square to change
-            self.changedIndex = Int.random(in: 0..<self.initialColors.count)
-            print("🔵 MemoryGridView: Will change square \(self.changedIndex) from \(self.initialColors[self.changedIndex])")
-            
-            // Pick a different color - fix the potential infinite loop
-            let availableColors = self.colors.filter { $0 != self.initialColors[self.changedIndex] }
-            guard !availableColors.isEmpty else {
-                print("❌ MemoryGridView: No available colors for change!")
-                return
-            }
-            
-            let newColor = availableColors.randomElement()!
-            self.testColors[self.changedIndex] = newColor
-            print("🔵 MemoryGridView: Changed square \(self.changedIndex) to \(newColor)")
-            
-            // Display test array
-            for (i, square) in self.squares.enumerated() {
-                if i < self.testColors.count {
-                    square.backgroundColor = self.testColors[i]
-                    square.isUserInteractionEnabled = true // ENABLE interaction for test phase!
-                    square.isHidden = false
-                    square.layer.borderColor = UIColor.darkGray.cgColor
-                    square.layer.borderWidth = 2
-                    print("🔵 MemoryGridView: Square \(i) enabled for interaction, backgroundColor: \(square.backgroundColor?.description ?? "nil")")
+        currentTrial = trial
+        responseCallback = completion
+        testPhaseStartTime = CACurrentMediaTime()
+        
+        // Show test array with one color changed
+        for (i, square) in squares.enumerated() {
+            if i < trial.colors.count {
+                if i == trial.changedIndex {
+                    square.backgroundColor = trial.newColor
+                    print("🔵 MemoryGridView: Changed square \(i) from \(trial.originalColor) to \(trial.newColor)")
                 } else {
-                    square.isHidden = true
+                    square.backgroundColor = trial.colors[i]
                 }
-            }
-            
-            // Store callback and presentation time
-            self.responseCallback = completion
-            self.presentationTime = CACurrentMediaTime()
-            print("🔵 MemoryGridView: Test array displayed, waiting for user tap. Callback stored: \(self.responseCallback != nil)")
-            
-            // Add visual feedback - make squares slightly larger to ensure they're tappable
-            self.squares.forEach { square in
-                if !square.isHidden && square.isUserInteractionEnabled {
-                    square.transform = CGAffineTransform(scaleX: 1.1, y: 1.1)
-                    print("🔵 MemoryGridView: Square scaled for better touch target")
-                }
+                
+                square.layer.borderColor = UIColor.darkGray.cgColor
+                square.layer.borderWidth = 2
+                square.isUserInteractionEnabled = true // Enable interaction for test phase
+                square.transform = CGAffineTransform(scaleX: 1.05, y: 1.05) // Slight scale for visibility
             }
         }
+        
+        print("🔵 MemoryGridView: Test phase ready - waiting for user response")
     }
+    
     
     @objc private func squareTapped(_ gesture: UITapGestureRecognizer) {
-        guard let square = gesture.view, let index = squares.firstIndex(of: square) else { 
-            print("❌ MemoryGridView: Invalid tap gesture")
+        guard let square = gesture.view,
+              let index = squares.firstIndex(of: square),
+              let trial = currentTrial,
+              let callback = responseCallback else { 
+            print("❌ MemoryGridView: Invalid tap state")
             return 
         }
         
         print("🔵 MemoryGridView: Square \(index) tapped!")
         
-        // Ensure we have a valid callback before proceeding
-        guard let callback = responseCallback else {
-            print("❌ MemoryGridView: No response callback available!")
-            return
-        }
-        
-        // Calculate reaction time
-        let reactionTime = CACurrentMediaTime() - presentationTime
+        // Calculate reaction time from test phase start
+        let reactionTime = CACurrentMediaTime() - testPhaseStartTime
         
         // Check if correct square was tapped
-        let correct = (index == changedIndex)
-        print("🔵 MemoryGridView: Tapped square \(index), changed square was \(changedIndex), correct: \(correct)")
+        let correct = (index == trial.changedIndex)
+        print("🔵 MemoryGridView: Tapped square \(index), changed square was \(trial.changedIndex), correct: \(correct)")
         
-        // Highlight selected square immediately
+        // Visual feedback
         square.layer.borderColor = UIColor.white.cgColor
         square.layer.borderWidth = 4
+        square.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
         
-        // Show correct answer briefly if wrong
+        // Show correct answer if wrong
         if !correct {
-            squares[changedIndex].layer.borderColor = UIColor.green.cgColor
-            squares[changedIndex].layer.borderWidth = 4
+            squares[trial.changedIndex].layer.borderColor = UIColor.green.cgColor
+            squares[trial.changedIndex].layer.borderWidth = 4
         }
-        
-        // Disable all interaction immediately
-        squares.forEach { $0.isUserInteractionEnabled = false }
-        
-        // Clear callback to prevent double-tapping
-        responseCallback = nil
-        
-        print("🔵 MemoryGridView: Calling response callback immediately")
-        
-        // Call completion callback immediately - no async delay
-        callback(correct, reactionTime)
-        
-        print("🔵 MemoryGridView: Response callback completed")
-    }
-    
-    func isWaitingForResponse() -> Bool {
-        return responseCallback != nil
-    }
-    
-    func forceResponse(correct: Bool, reactionTime: TimeInterval) {
-        guard let callback = responseCallback else { return }
-        responseCallback = nil
-        
-        print("🔵 MemoryGridView: Forcing response due to timeout")
         
         // Disable all interaction
         squares.forEach { $0.isUserInteractionEnabled = false }
         
-        // Call the callback
-        callback(correct, reactionTime)
+        // Clear state
+        responseCallback = nil
+        currentTrial = nil
+        
+        print("🔵 MemoryGridView: Calling response callback - correct: \(correct), RT: \(String(format: "%.3f", reactionTime))s")
+        
+        // Brief animation then callback
+        UIView.animate(withDuration: 0.2, animations: {
+            square.transform = CGAffineTransform(scaleX: 1.05, y: 1.05)
+        }) { _ in
+            callback(correct, reactionTime)
+        }
     }
     
-    private let colors: [UIColor] = [
-        .systemRed, .systemGreen, .systemBlue,
-        .systemYellow, .systemPurple, .systemCyan
-    ]
 }
