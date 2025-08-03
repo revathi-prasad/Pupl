@@ -8,8 +8,8 @@
 import UIKit
 
 protocol MemoryTaskDelegate: AnyObject {
-    func memoryTask(_ task: MemoryTask, didStartTrial trial: Int, total: Int)
-    func memoryTask(_ task: MemoryTask, didReceiveResponse correct: Bool, reactionTime: TimeInterval)
+    func memoryTask(_ task: MemoryTask, didStartTrial trial: Int, total: Int, setSize: Int)
+    func memoryTask(_ task: MemoryTask, didReceiveResponse correct: Bool, reactionTime: TimeInterval, setSize: Int, trial: Int)
     func memoryTaskDidComplete(_ task: MemoryTask)
 }
 
@@ -34,11 +34,11 @@ class MemoryTask: TaskProtocol {
     private var timer: Timer?
     
     // Research-based parameters (reduced for faster testing)
-    private let totalTrials = 30 // Reduced from 240 for testing, but still substantial
+    private let totalTrials = 10 // Reduced for quick pupil size testing
     private let setSizes = [4, 6, 8] // Different working memory loads
-    private let encodingDuration: TimeInterval = 0.5 // 500ms to view array
+    private let encodingDuration: TimeInterval = 2.0 // 2000ms to view array (increased for better usability)
     private let retentionInterval: TimeInterval = 1.0 // 1000ms delay
-    private let responseWindow: TimeInterval = 3.0 // 3 seconds to respond
+    private let responseWindow: TimeInterval = 5.0 // 5 seconds to respond (increased for better usability)
     
     // Enhanced color palette
     private let availableColors: [UIColor] = [
@@ -84,6 +84,10 @@ class MemoryTask: TaskProtocol {
     
     func start(with gridView: MemoryGridView) {
         print("🟦 MemoryTask: Starting with research-based protocol")
+        
+        // Haptic feedback for task start
+        HapticFeedbackManager.shared.taskStart()
+        
         self.gridView = gridView
         
         if trials.isEmpty {
@@ -107,6 +111,10 @@ class MemoryTask: TaskProtocol {
     private func presentNextTrial() {
         guard currentTrial < trials.count else {
             print("🎯 MemoryTask: All trials completed!")
+            
+            // Haptic feedback for task completion
+            HapticFeedbackManager.shared.taskComplete()
+            
             delegate?.memoryTaskDidComplete(self)
             return
         }
@@ -117,12 +125,12 @@ class MemoryTask: TaskProtocol {
         print("🔄 MemoryTask: Presenting trial \(trial.trialNumber), set size \(trial.setSize)")
         
         // Notify delegate about trial start
-        delegate?.memoryTask(self, didStartTrial: trial.trialNumber, total: totalTrials)
+        delegate?.memoryTask(self, didStartTrial: trial.trialNumber, total: totalTrials, setSize: trial.setSize)
         
         // Configure grid for this trial
         configureMemoryGrid(for: trial)
         
-        // Phase 1: Encoding (show array for 500ms)
+        // Phase 1: Encoding (show array for 2000ms)
         print("🟦 MemoryTask: Phase 1 - Encoding (\(encodingDuration)s)")
         
         // Phase 2: Retention interval (blank/mask for 1000ms)
@@ -132,7 +140,7 @@ class MemoryTask: TaskProtocol {
             
             // Phase 3: Test phase (show changed array)
             DispatchQueue.main.asyncAfter(deadline: .now() + (self?.retentionInterval ?? 1.0)) { [weak self] in
-                print("🟦 MemoryTask: Phase 3 - Test phase (\(self?.responseWindow ?? 3.0)s)")
+                print("🟦 MemoryTask: Phase 3 - Test phase (\(self?.responseWindow ?? 5.0)s)")
                 self?.showTestPhase(for: trial)
             }
         }
@@ -167,8 +175,12 @@ class MemoryTask: TaskProtocol {
             
             print("🟦 MemoryTask: Received response - correct: \(correct), RT: \(reactionTime)")
             
-            // Report response to delegate
-            self.delegate?.memoryTask(self, didReceiveResponse: correct, reactionTime: reactionTime)
+            // Note: Neutral haptic feedback provided on tap for user confirmation
+            // Response correctness tracked silently for research data
+            
+            // Report response to delegate  
+            let trial = self.trials[self.currentTrial]
+            self.delegate?.memoryTask(self, didReceiveResponse: correct, reactionTime: reactionTime, setSize: trial.setSize, trial: trial.trialNumber)
             
             // Advance to next trial
             self.advanceToNextTrial()
@@ -194,7 +206,10 @@ class MemoryTask: TaskProtocol {
         
         print("👆 MemoryTask: Response - Selected: \(selectedIndex), Correct: \(trial.changedIndex), RT: \(String(format: "%.3f", reactionTime))s")
         
-        delegate?.memoryTask(self, didReceiveResponse: isCorrect, reactionTime: reactionTime)
+        // Note: Neutral haptic feedback provided on tap for user confirmation
+        // Response correctness tracked silently for research data
+        
+        delegate?.memoryTask(self, didReceiveResponse: isCorrect, reactionTime: reactionTime, setSize: trial.setSize, trial: trial.trialNumber)
         
         // Immediately move to next trial on response
         advanceToNextTrial()
@@ -221,8 +236,8 @@ class MemoryGridView: UIView {
     
     private func setupGrid() {
         // Create adaptive grid that can handle 4, 6, or 8 squares
-        let squareSize: CGFloat = 70
-        let spacing: CGFloat = 15
+        let _: CGFloat = 70  // squareSize - not used in current implementation
+        let _: CGFloat = 15  // spacing - not used in current implementation
         
         // Create maximum of 8 squares arranged in optimal patterns
         for i in 0..<maxSquares {
@@ -353,6 +368,10 @@ class MemoryGridView: UIView {
         
         print("🔵 MemoryGridView: Square \(index) tapped!")
         
+        // Neutral haptic feedback to confirm tap registration
+        HapticFeedbackManager.shared.neutralResponse()
+        print("🔵 Neutral haptic feedback - tap registered")
+        
         // Calculate reaction time from test phase start
         let reactionTime = CACurrentMediaTime() - testPhaseStartTime
         
@@ -360,16 +379,12 @@ class MemoryGridView: UIView {
         let correct = (index == trial.changedIndex)
         print("🔵 MemoryGridView: Tapped square \(index), changed square was \(trial.changedIndex), correct: \(correct)")
         
-        // Visual feedback
-        square.layer.borderColor = UIColor.white.cgColor
-        square.layer.borderWidth = 4
-        square.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+        // Enhanced visual feedback - more visible selection
+        square.layer.borderColor = UIColor.yellow.cgColor // More visible color
+        square.layer.borderWidth = 6
+        square.backgroundColor = square.backgroundColor?.withAlphaComponent(0.7) // Slightly dim
         
-        // Show correct answer if wrong
-        if !correct {
-            squares[trial.changedIndex].layer.borderColor = UIColor.green.cgColor
-            squares[trial.changedIndex].layer.borderWidth = 4
-        }
+        // No correctness feedback to avoid bias
         
         // Disable all interaction
         squares.forEach { $0.isUserInteractionEnabled = false }

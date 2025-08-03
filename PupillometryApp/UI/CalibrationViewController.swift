@@ -180,10 +180,16 @@ class CalibrationViewController: UIViewController {
     private var currentPointIndex = 0
     private var calibrationComplete = false
     private var pointLayers: [CALayer] = []
+    private var isCalibrationInProgress = false
+    
+    // CRITICAL FIX: Replace nested DispatchQueue.main.asyncAfter with proper Timer management
+    private var calibrationTimer: Timer?
+    private var gazeCollectionTimer: Timer?
     
     private let pupillometryManager = PupillometryManager.shared
     private let numPoints = 9
-    private let pointDuration: TimeInterval = 2.0
+    private let pointDuration: TimeInterval = 3.0
+    private let gazeCollectionDelay: TimeInterval = 0.5
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -203,11 +209,21 @@ class CalibrationViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        // Cleanup: Stop session if still running when leaving calibration
+        print("👋 CalibrationViewController: viewWillDisappear called")
+        
+        // Comprehensive cleanup to prevent crashes
+        cleanupCalibrationResources()
+        
+        // Stop session if still running when leaving calibration
         if pupillometryManager.currentSession != nil {
             print("🧹 CalibrationViewController: Cleaning up pupillometry session on view disappear")
             pupillometryManager.stopSession()
         }
+    }
+    
+    deinit {
+        print("🗑️ CalibrationViewController: deinit called - cleaning up")
+        cleanupCalibrationResources()
     }
     
     private func setupUI() {
@@ -225,7 +241,7 @@ class CalibrationViewController: UIViewController {
         progressView.progressTintColor = .systemBlue
         progressView.backgroundColor = .darkGray
         
-        instructionLabel.text = "Tap 'Start Calibration' to begin eye tracking calibration"
+        instructionLabel.text = "IMPORTANT: Keep your head still and follow each dot ONLY with your eyes.\nTap 'Start Calibration' when ready."
         instructionLabel.textColor = .white
         instructionLabel.textAlignment = .center
         instructionLabel.font = UIFont.systemFont(ofSize: 18, weight: .medium)
@@ -251,7 +267,8 @@ class CalibrationViewController: UIViewController {
         
         print("📐 CalibrationViewController: Setting up points with view size: \(width) x \(height)")
         
-        calibrationPoints = [
+        // Create 9 calibration points in 3x3 grid (research-backed optimal configuration)
+        let fixedPoints = [
             CGPoint(x: width * 0.1, y: height * 0.1),   // Top left
             CGPoint(x: width * 0.5, y: height * 0.1),   // Top center
             CGPoint(x: width * 0.9, y: height * 0.1),   // Top right
@@ -262,6 +279,14 @@ class CalibrationViewController: UIViewController {
             CGPoint(x: width * 0.5, y: height * 0.9),   // Bottom center
             CGPoint(x: width * 0.9, y: height * 0.9)    // Bottom right
         ]
+        
+        // Randomize the order of calibration points
+        calibrationPoints = fixedPoints.shuffled()
+        
+        print("🎲 CalibrationViewController: Randomized calibration order:")
+        for (index, point) in calibrationPoints.enumerated() {
+            print("   Point \(index + 1): (\(Int(point.x)), \(Int(point.y)))")
+        }
         
         print("✅ CalibrationViewController: Created \(calibrationPoints.count) calibration points")
     }
@@ -315,6 +340,8 @@ class CalibrationViewController: UIViewController {
     }
     
     private func startCalibration() {
+        print("🎯 CalibrationViewController: Starting calibration...")
+        isCalibrationInProgress = true
         currentPointIndex = 0
         displayCalibrationPoint()
     }
@@ -322,11 +349,38 @@ class CalibrationViewController: UIViewController {
     private func displayCalibrationPoint() {
         print("📍 CalibrationViewController: Displaying point \(currentPointIndex + 1) of \(calibrationPoints.count)")
         
+        // Safety check: ensure we're still in a valid state
+        guard isCalibrationInProgress && view.window != nil else {
+            print("⚠️ CalibrationViewController: Calibration not in progress or view not active, skipping")
+            return
+        }
+        
         // Remove previous point layers
         pointLayers.forEach { $0.removeFromSuperlayer() }
         pointLayers.removeAll()
         
-        guard currentPointIndex < calibrationPoints.count else {
+        // CRITICAL FIX: Add comprehensive bounds checking to prevent index crash
+        guard currentPointIndex >= 0 && currentPointIndex < calibrationPoints.count else {
+            print("❌ CalibrationViewController: FATAL - currentPointIndex \(currentPointIndex) out of bounds for array of size \(calibrationPoints.count)")
+            print("🔄 CalibrationViewController: Forcing calibration completion to prevent crash")
+            completeCalibration()
+            return
+        }
+        
+        // Double-check array is not empty
+        guard !calibrationPoints.isEmpty else {
+            print("❌ CalibrationViewController: FATAL - calibrationPoints array is empty!")
+            print("🔄 CalibrationViewController: Attempting to rebuild calibration points...")
+            setupCalibrationPoints()
+            if calibrationPoints.isEmpty {
+                print("❌ CalibrationViewController: Still empty after rebuild - aborting calibration")
+                completeCalibration()
+            }
+            return  // Always return from guard else block
+        }
+        
+        // Final bounds check before accessing array
+        if currentPointIndex >= calibrationPoints.count {
             print("✅ CalibrationViewController: All points completed, finishing calibration")
             completeCalibration()
             return
@@ -336,20 +390,20 @@ class CalibrationViewController: UIViewController {
         let progress = Float(currentPointIndex) / Float(calibrationPoints.count)
         progressView.progress = progress
         
-        // Update instruction
-        instructionLabel.text = "Follow the white dot with your eyes\nPoint \(currentPointIndex + 1) of \(calibrationPoints.count)"
+        // Update instruction  
+        instructionLabel.text = "Keep head STILL. Follow dot with EYES ONLY.\nPoint \(currentPointIndex + 1) of \(calibrationPoints.count)"
         
-        // Create and animate the point
+        // SAFELY access the array after all bounds checks
         let point = calibrationPoints[currentPointIndex]
-        print("📍 Point location: \(point)")
+        print("📍 Point location: \(point) (index \(currentPointIndex)/\(calibrationPoints.count))")
         
-        // Create larger, more visible white dot
+        // Create larger, more visible dot with high contrast
         let pointLayer = CALayer()
-        pointLayer.backgroundColor = UIColor.white.cgColor
-        pointLayer.frame = CGRect(x: point.x - 15, y: point.y - 15, width: 30, height: 30)
-        pointLayer.cornerRadius = 15
-        pointLayer.borderWidth = 2
-        pointLayer.borderColor = UIColor.lightGray.cgColor
+        pointLayer.backgroundColor = UIColor.red.cgColor  // Red for better visibility
+        pointLayer.frame = CGRect(x: point.x - 20, y: point.y - 20, width: 40, height: 40)
+        pointLayer.cornerRadius = 20
+        pointLayer.borderWidth = 3
+        pointLayer.borderColor = UIColor.white.cgColor
         
         // Add shadow for better visibility
         pointLayer.shadowColor = UIColor.black.cgColor
@@ -385,15 +439,17 @@ class CalibrationViewController: UIViewController {
         // Record calibration data with pupillometry manager
         pupillometryManager.recordCalibrationPoint(at: point)
         
-        // Start collecting gaze data for this point
-        startGazeDataCollection(for: point)
+        // CRITICAL FIX: Use proper Timer instead of nested DispatchQueue.main.asyncAfter
+        // This eliminates the cascading timer deadlock that causes Point 7 freeze
         
-        // Schedule next point
-        DispatchQueue.main.asyncAfter(deadline: .now() + pointDuration) { [weak self] in
-            guard let self = self else { return }
-            self.stopGazeDataCollection()
-            self.currentPointIndex += 1
-            self.displayCalibrationPoint()
+        // Start gaze collection after delay
+        gazeCollectionTimer = Timer.scheduledTimer(withTimeInterval: gazeCollectionDelay, repeats: false) { [weak self] _ in
+            self?.startGazeDataCollection(for: point)
+        }
+        
+        // Schedule next point transition
+        calibrationTimer = Timer.scheduledTimer(withTimeInterval: pointDuration, repeats: false) { [weak self] _ in
+            self?.handleCalibrationPointTransition()
         }
     }
     
@@ -408,8 +464,43 @@ class CalibrationViewController: UIViewController {
         pupillometryManager.stopCalibrationDataCollection()
     }
     
+    // CRITICAL FIX: Centralized calibration point transition logic
+    // This replaces the nested timer approach that caused Point 7 deadlocks
+    private func handleCalibrationPointTransition() {
+        print("⏰ CalibrationViewController: Handling transition from point \(currentPointIndex)")
+        
+        // Safety checks
+        guard isCalibrationInProgress && view.window != nil else {
+            print("⚠️ CalibrationViewController: Calibration stopped or view not active, aborting transition")
+            return
+        }
+        
+        guard currentPointIndex >= 0 && currentPointIndex < calibrationPoints.count else {
+            print("❌ CalibrationViewController: Invalid currentPointIndex \(currentPointIndex) for \(calibrationPoints.count) points")
+            completeCalibration()
+            return
+        }
+        
+        // Stop current point data collection
+        stopGazeDataCollection()
+        
+        // Move to next point
+        currentPointIndex += 1
+        
+        if currentPointIndex >= calibrationPoints.count {
+            print("✅ CalibrationViewController: All calibration points completed")
+            completeCalibration()
+        } else {
+            print("🔄 CalibrationViewController: Moving to point \(currentPointIndex + 1)/\(calibrationPoints.count)")
+            displayCalibrationPoint()
+        }
+    }
+    
     private func completeCalibration() {
         print("🎯 CalibrationViewController: Finalizing calibration...")
+        
+        // Mark calibration as no longer in progress
+        isCalibrationInProgress = false
         
         // Remove all calibration dots
         pointLayers.forEach { $0.removeFromSuperlayer() }
@@ -446,18 +537,61 @@ class CalibrationViewController: UIViewController {
     }
     
     private func navigateToTaskInstructions() {
-        print("🔗 CalibrationViewController: Creating TaskInstructionsViewController programmatically")
+        print("🔗 CalibrationViewController: Creating PathwaySelectionViewController programmatically")
         
-        // Stop the pupillometry session since calibration is complete
+        // Clean up any remaining animations and timers
+        cleanupCalibrationResources()
+        
+        // Stop the pupillometry session safely on background thread
         print("🛑 CalibrationViewController: Stopping pupillometry session after calibration")
-        pupillometryManager.stopSession()
+        DispatchQueue.global(qos: .utility).async { [weak self] in
+            self?.pupillometryManager.stopSession()
+            
+            // Return to main thread for navigation
+            DispatchQueue.main.async { [weak self] in
+                guard let self = self, let navigationController = self.navigationController else {
+                    print("❌ Navigation controller or self is nil")
+                    return
+                }
+                
+                // Create PathwaySelectionViewController programmatically (not in storyboard)
+                print("🔧 Creating PathwaySelectionViewController programmatically")
+                let pathwaySelectionVC = PathwaySelectionViewController()
+                pathwaySelectionVC.title = "Choose Assessment Type"
+                navigationController.pushViewController(pathwaySelectionVC, animated: true)
+                print("✅ Successfully navigated to PathwaySelectionViewController")
+            }
+        }
+    }
+    
+    private func cleanupCalibrationResources() {
+        print("🧹 CalibrationViewController: Cleaning up calibration resources...")
         
-        // Create TaskInstructionsViewController programmatically (not in storyboard)
-        print("🔧 Creating TaskInstructionsViewController programmatically")
-        let taskInstructionsVC = TaskInstructionsViewController()
-        taskInstructionsVC.title = "Task Instructions"
-        navigationController?.pushViewController(taskInstructionsVC, animated: true)
-        print("✅ Successfully navigated to TaskInstructionsViewController")
+        // Stop calibration process
+        isCalibrationInProgress = false
+        
+        // CRITICAL FIX: Invalidate timers to prevent Point 7 deadlock and memory leaks
+        calibrationTimer?.invalidate()
+        calibrationTimer = nil
+        gazeCollectionTimer?.invalidate() 
+        gazeCollectionTimer = nil
+        
+        // Remove all layer animations
+        pointLayers.forEach { layer in
+            layer.removeAllAnimations()
+            layer.removeFromSuperlayer()
+        }
+        pointLayers.removeAll()
+        
+        // Clear calibration view layers
+        calibrationView?.layer.sublayers?.forEach { layer in
+            if layer != calibrationView?.layer {
+                layer.removeAllAnimations()
+                layer.removeFromSuperlayer()
+            }
+        }
+        
+        print("✅ CalibrationViewController: Resource cleanup completed")
     }
     
     private func showCalibrationMetrics(_ result: CalibrationResult) {

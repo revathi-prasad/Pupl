@@ -204,9 +204,29 @@ class DemographicsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        print("📱 DemographicsViewController: viewDidLoad started")
+        
+        // Add safety checks for all outlets
+        guard nameTextField != nil else {
+            print("❌ nameTextField outlet not connected!")
+            return
+        }
+        guard ageTextField != nil else {
+            print("❌ ageTextField outlet not connected!")
+            return
+        }
+        guard continueButton != nil else {
+            print("❌ continueButton outlet not connected!")
+            return
+        }
+        
+        print("✅ All outlets connected successfully")
+        
         setupUI()
         setupKeyboardDismissal()
         setupTextFields()
+        
+        print("📱 DemographicsViewController: viewDidLoad completed")
     }
     
     private func setupUI() {
@@ -215,8 +235,33 @@ class DemographicsViewController: UIViewController {
             $0?.layer.borderWidth = 1.0
             $0?.layer.borderColor = UIColor.lightGray.cgColor
             $0?.layer.cornerRadius = 8.0
-            $0?.backgroundColor = UIColor.systemGray6
+            $0?.backgroundColor = UIColor.darkGray
+            $0?.textColor = UIColor.white
         }
+        
+        // Set placeholder text with proper visibility
+        nameTextField?.attributedPlaceholder = NSAttributedString(
+            string: "Enter your name",
+            attributes: [.foregroundColor: UIColor.lightGray]
+        )
+        ageTextField?.attributedPlaceholder = NSAttributedString(
+            string: "Enter your age",
+            attributes: [.foregroundColor: UIColor.lightGray]
+        )
+        previousDiagnosisTextField?.attributedPlaceholder = NSAttributedString(
+            string: "Previous diagnosis (optional)",
+            attributes: [.foregroundColor: UIColor.lightGray]
+        )
+        currentMedicationsTextField?.attributedPlaceholder = NSAttributedString(
+            string: "Current medications (optional)",
+            attributes: [.foregroundColor: UIColor.lightGray]
+        )
+        
+        // Configure gender segmented control for dark theme
+        genderSegmentedControl?.backgroundColor = UIColor.darkGray
+        genderSegmentedControl?.selectedSegmentTintColor = UIColor.systemBlue
+        genderSegmentedControl?.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .normal)
+        genderSegmentedControl?.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
         
         // Configure continue button
         continueButton.layer.cornerRadius = 8.0
@@ -333,7 +378,13 @@ class DemographicsViewController: UIViewController {
     }
     
     @IBAction func textFieldDidChange(_ sender: UITextField) {
-        updateContinueButtonState()
+        // Add debug logging and safety checks
+        print("🔤 DemographicsViewController: Text field changed - \(sender.placeholder ?? "unknown")")
+        
+        // Defensive programming - ensure we don't crash
+        DispatchQueue.main.async { [weak self] in
+            self?.updateContinueButtonState()
+        }
     }
 }
 
@@ -341,6 +392,14 @@ class DemographicsViewController: UIViewController {
 extension DemographicsViewController: UITextFieldDelegate {
     
     func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        // Add safety checks for outlets
+        guard nameTextField != nil, ageTextField != nil, 
+              previousDiagnosisTextField != nil, currentMedicationsTextField != nil else {
+            print("⚠️ DemographicsViewController: Text field outlets not connected properly")
+            textField.resignFirstResponder()
+            return true
+        }
+        
         switch textField {
         case nameTextField:
             ageTextField.becomeFirstResponder()
@@ -373,6 +432,10 @@ extension DemographicsViewController: UITextFieldDelegate {
     
     // Limit age input to reasonable numbers
     func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        // Add safety checks to prevent crashes
+        guard let currentText = textField.text else { return true }
+        guard range.location + range.length <= currentText.count else { return false }
+        
         if textField == ageTextField {
             let allowedCharacters = CharacterSet.decimalDigits
             let characterSet = CharacterSet(charactersIn: string)
@@ -383,8 +446,7 @@ extension DemographicsViewController: UITextFieldDelegate {
             }
             
             // Limit age to reasonable range (1-150)
-            if let currentText = textField.text,
-               let range = Range(range, in: currentText) {
+            if let range = Range(range, in: currentText) {
                 let updatedText = currentText.replacingCharacters(in: range, with: string)
                 if let age = Int(updatedText), age > 150 {
                     return false

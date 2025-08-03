@@ -17,7 +17,7 @@ class ViewController: UIViewController {
     @IBOutlet weak var taskImageView: UIImageView!
     
     // Core components
-    private let cameraManager = CameraManager()
+    private let cameraManager = CameraManager.shared
     private let pupilDetector = PupilDetector()
     private let featureExtractor = FeatureExtractor()
     private let gradCPTTask = GradCPTTask()
@@ -61,11 +61,10 @@ class ViewController: UIViewController {
         cameraManager.delegate = self
         
         // Set up preview layer
-        if let previewLayer = try? AVCaptureVideoPreviewLayer(session: AVCaptureSession()) {
-            previewLayer.frame = previewView.bounds
-            previewLayer.videoGravity = .resizeAspectFill
-            previewView.layer.addSublayer(previewLayer)
-        }
+        let previewLayer = AVCaptureVideoPreviewLayer(session: AVCaptureSession())
+        previewLayer.frame = previewView.bounds
+        previewLayer.videoGravity = .resizeAspectFill
+        previewView.layer.addSublayer(previewLayer)
     }
     
     private func setupGradCPTTask() {
@@ -82,7 +81,7 @@ class ViewController: UIViewController {
     
     private func startRecording() {
         // Request camera permissions
-        cameraManager.checkAuthorization { [weak self] authorized in
+        cameraManager.checkAuthorization { [weak self] (authorized: Bool) in
             guard let self = self else { return }
             
             guard authorized else {
@@ -170,10 +169,20 @@ extension ViewController: CameraManagerDelegate {
         // Add to session
         session.pupilMeasurements.append(measurement)
         
-        // Update buffer
-        measurementBuffer.append(measurement)
-        if measurementBuffer.count > bufferSize {
-            measurementBuffer.removeFirst()
+        // CRITICAL FIX: Thread-safe buffer management to prevent fatal array errors
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Atomic buffer update on main thread only
+            self.measurementBuffer.append(measurement)
+            
+            // Safe removal with bounds checking to prevent "subrange extends past the end"
+            if self.measurementBuffer.count > self.bufferSize {
+                let excessCount = self.measurementBuffer.count - self.bufferSize
+                if excessCount > 0 && excessCount <= self.measurementBuffer.count {
+                    self.measurementBuffer.removeFirst(excessCount)
+                }
+            }
         }
         
         // Update UI
@@ -234,8 +243,9 @@ extension ViewController: GradCPTTaskDelegate {
             type: .stimulusOnset,
             data: [
                 "trial": stimulus.trialNumber,
-                "type": stimulus.type == .target ? "target" : "nonTarget"
-            ]
+                "type": stimulus.type == GradCPTTask.Stimulus.StimulusType.target ? "target" : "nonTarget"
+            ],
+            contentType: .gradcpt
         )
         session.taskEvents.append(event)
     }
@@ -247,7 +257,8 @@ extension ViewController: GradCPTTaskDelegate {
             data: [
                 "correct": correct,
                 "reactionTime": reactionTime
-            ]
+            ],
+            contentType: .gradcpt
         )
         session.taskEvents.append(event)
     }

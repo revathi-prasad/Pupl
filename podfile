@@ -3,14 +3,8 @@ platform :ios, '15.6'
 target 'PupillometryApp' do
   use_frameworks!
 
-  # Core dependencies
-  pod 'Firebase/Core'
-  pod 'Firebase/Storage'
-  pod 'Firebase/Analytics'
-#  pod 'Charts', '~> 4.1.0'
-  
-  # For performance optimization
-  pod 'OpenCV'
+  # MediaPipe for improved facial landmark detection
+  pod 'MediaPipeTasksVision'
   
   target 'PupillometryAppTests' do
     inherit! :search_paths

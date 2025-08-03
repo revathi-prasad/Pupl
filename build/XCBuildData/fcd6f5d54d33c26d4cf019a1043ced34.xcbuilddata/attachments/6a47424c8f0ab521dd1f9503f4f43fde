@@ -1,0 +1,4 @@
+module GoogleAdsOnDeviceConversionTarget {
+umbrella "/Users/revathiprasad/Library/Developer/Xcode/DerivedData/PupillometryApp-enlykcidswgyiqdzkmtptpjqwirc/SourcePackages/checkouts/google-ads-on-device-conversion-ios-sdk/GoogleAdsOnDeviceConversionWrapper/include"
+export *
+}

@@ -1,0 +1,4 @@
+module GoogleUtilities_AppDelegateSwizzler {
+umbrella "/Users/revathiprasad/Library/Developer/Xcode/DerivedData/PupillometryApp-enlykcidswgyiqdzkmtptpjqwirc/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/AppDelegateSwizzler/Public"
+export *
+}

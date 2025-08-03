@@ -41,17 +41,17 @@ import UIKit
 class ResultsViewController: UIViewController {
     
     // MARK: - IBOutlets for Performance Summary Labels
-    @IBOutlet weak var sustainedAttentionLabel: UITextField!
-    @IBOutlet weak var workingMemoryLabel: UITextField!
-    @IBOutlet weak var responseVariabilityLabel: UITextField!
-    @IBOutlet weak var commissionErrorsLabel: UITextField!
+    @IBOutlet weak var sustainedAttentionLabel: UITextField?
+    @IBOutlet weak var workingMemoryLabel: UITextField?
+    @IBOutlet weak var responseVariabilityLabel: UITextField?
+    @IBOutlet weak var commissionErrorsLabel: UITextField?
     
     // MARK: - Other IBOutlets
 //    @IBOutlet weak var performanceTable: UITableView!
-    @IBOutlet weak var disclaimerLabel: UITextView!
-    @IBOutlet weak var saveResultsButton: UIButton!
-    @IBOutlet weak var newAssessmentButton: UIButton!
-    @IBOutlet weak var resultsSavedLabel: UILabel!
+    @IBOutlet weak var disclaimerLabel: UITextView?
+    @IBOutlet weak var saveResultsButton: UIButton?
+    @IBOutlet weak var newAssessmentButton: UIButton?
+    @IBOutlet weak var resultsSavedLabel: UILabel?
     
     private let pupillometryManager = PupillometryManager.shared
     private let cloudStorageManager = FirebaseStorageManager()
@@ -73,18 +73,24 @@ class ResultsViewController: UIViewController {
 //        performanceTable?.layer.borderWidth = 1
 //        performanceTable?.layer.borderColor = UIColor.lightGray.cgColor
         
-        // Configure disclaimer
-        disclaimerLabel.text = "Clinical Disclaimer: These results are for screening purposes only and do not constitute a clinical diagnosis. Consult with a qualified healthcare professional for comprehensive evaluation."
-        disclaimerLabel.isEditable = false
-        disclaimerLabel.isScrollEnabled = false
-        disclaimerLabel.backgroundColor = UIColor.clear
-        disclaimerLabel.textColor = UIColor.systemGray
-        disclaimerLabel.font = UIFont.systemFont(ofSize: 12)
+        // Configure disclaimer based on pathway
+        let pathwayType = pupillometryManager.currentSession?.pathwayType ?? .consumer
+        switch pathwayType {
+        case .clinical:
+            disclaimerLabel?.text = "Clinical Disclaimer: These ADHD screening results are for informational purposes only and do not constitute a clinical diagnosis. Consult with a qualified healthcare professional for comprehensive evaluation."
+        case .consumer:
+            disclaimerLabel?.text = "Information Disclaimer: These attention metrics are for personal insights only. Results are not diagnostic and should not be used for medical purposes."
+        }
+        disclaimerLabel?.isEditable = false
+        disclaimerLabel?.isScrollEnabled = false
+        disclaimerLabel?.backgroundColor = UIColor.clear
+        disclaimerLabel?.textColor = UIColor.lightGray
+        disclaimerLabel?.font = UIFont.systemFont(ofSize: 12)
         
         // Configure save button
-        saveResultsButton.layer.cornerRadius = 8.0
-        saveResultsButton.backgroundColor = UIColor.systemBlue
-        saveResultsButton.setTitleColor(.white, for: .normal)
+        saveResultsButton?.layer.cornerRadius = 8.0
+        saveResultsButton?.backgroundColor = UIColor.systemBlue
+        saveResultsButton?.setTitleColor(.white, for: .normal)
     }
     
     private func loadResults() {
@@ -93,11 +99,40 @@ class ResultsViewController: UIViewController {
     }
     
     private func updatePerformanceLabels() {
-        // Update the 4 performance metric labels
-        sustainedAttentionLabel?.text = getAttentionRating()
-        workingMemoryLabel?.text = getMemoryRating()
-        responseVariabilityLabel?.text = getVariabilityRating()
-        commissionErrorsLabel?.text = getErrorRating()
+        guard let session = pupillometryManager.currentSession else {
+            // Show "Not Available" for all metrics if no session
+            sustainedAttentionLabel?.text = "Not Available"
+            workingMemoryLabel?.text = "Not Available"
+            responseVariabilityLabel?.text = "Not Available"
+            commissionErrorsLabel?.text = "Not Available"
+            stylePerformanceLabels()
+            return
+        }
+        
+        // Check pathway type to determine which metrics to show
+        switch session.pathwayType {
+        case .clinical:
+            // Clinical pathway: ADHD Protocol metrics
+            if !session.adhdProtocolResponses.isEmpty {
+                sustainedAttentionLabel?.text = getADHDAttentionRating(session: session)
+                workingMemoryLabel?.text = getADHDMemoryRating(session: session)
+                responseVariabilityLabel?.text = getADHDVariabilityRating(session: session)
+                commissionErrorsLabel?.text = getADHDErrorRating(session: session)
+            } else {
+                // Fallback to legacy GradCPT metrics if ADHD data not available
+                sustainedAttentionLabel?.text = getAttentionRating()
+                workingMemoryLabel?.text = getMemoryRating()
+                responseVariabilityLabel?.text = getVariabilityRating()
+                commissionErrorsLabel?.text = getErrorRating()
+            }
+            
+        case .consumer:
+            // Consumer pathway: Show engagement metrics from YouTube videos
+            sustainedAttentionLabel?.text = getVideoEngagementRating(session: session)
+            workingMemoryLabel?.text = "Not Applicable"
+            responseVariabilityLabel?.text = getVideoFocusStability(session: session)
+            commissionErrorsLabel?.text = "Not Applicable"
+        }
         
         // Apply styling to labels
         stylePerformanceLabels()
@@ -113,14 +148,24 @@ class ResultsViewController: UIViewController {
             // Color code based on content
             if let text = label?.text {
                 switch text.lowercased() {
-                case "elevated risk", "high", "above average":
+                case "not applicable":
+                    label?.textColor = UIColor.lightGray
+                    label?.isEnabled = false
+                case "elevated risk", "high", "above average", "variable focus":
                     label?.textColor = UIColor.systemRed
-                case "borderline", "moderate", "normal range":
+                    label?.isEnabled = true
+                case "borderline", "moderate", "normal range", "moderate engagement", "moderate focus":
                     label?.textColor = UIColor.systemOrange
-                case "below average", "low":
+                    label?.isEnabled = true
+                case "below average", "low", "low engagement", "stable focus":
                     label?.textColor = UIColor.systemGreen
+                    label?.isEnabled = true
+                case "high engagement":
+                    label?.textColor = UIColor.systemBlue
+                    label?.isEnabled = true
                 default:
                     label?.textColor = UIColor.label
+                    label?.isEnabled = true
                 }
             }
         }
@@ -192,8 +237,46 @@ class ResultsViewController: UIViewController {
             return
         }
         
+        // Show loading indicator
+        let loadingAlert = UIAlertController(
+            title: "Saving Results",
+            message: "Uploading data to Firebase Storage...",
+            preferredStyle: .alert
+        )
+        
+        let loadingIndicator = UIActivityIndicatorView(style: .medium)
+        loadingIndicator.startAnimating()
+        loadingAlert.view.addSubview(loadingIndicator)
+        loadingIndicator.center = CGPoint(x: loadingAlert.view.bounds.midX, y: loadingAlert.view.bounds.midY + 50)
+        
+        present(loadingAlert, animated: true)
+        
         cloudStorageManager.uploadSessionData(session) { [weak self] success, message in
-            // Handle result
+            DispatchQueue.main.async {
+                // Dismiss loading alert
+                self?.dismiss(animated: true) {
+                    if success {
+                        // Update UI
+                        self?.resultsSaved = true
+                        self?.saveResultsButton?.setTitle("Results Saved ✓", for: .normal)
+                        self?.saveResultsButton?.backgroundColor = UIColor.systemGreen
+                        self?.resultsSavedLabel?.text = "✓ Results saved to Firebase Storage"
+                        self?.resultsSavedLabel?.textColor = UIColor.systemGreen
+                        self?.resultsSavedLabel?.isHidden = false
+                        
+                        // Show success message with storage path
+                        let alert = UIAlertController(
+                            title: "Results Saved Successfully",
+                            message: "Session data uploaded to Firebase Storage at:\npupillometry_data/session_\(session.sessionID)/",
+                            preferredStyle: .alert
+                        )
+                        alert.addAction(UIAlertAction(title: "OK", style: .default))
+                        self?.present(alert, animated: true)
+                    } else {
+                        self?.showErrorAlert(message: message ?? "Failed to upload to Firebase Storage")
+                    }
+                }
+            }
         }
     }
     
@@ -210,7 +293,7 @@ class ResultsViewController: UIViewController {
                     if success {
                         // Update UI
                         self?.resultsSaved = true
-                        self?.saveResultsButton.setTitle("New Assessment", for: .normal)
+                        self?.saveResultsButton?.setTitle("New Assessment", for: .normal)
                         
                         // Show success message
                         let alert = UIAlertController(
@@ -291,6 +374,141 @@ class ResultsViewController: UIViewController {
             return "Normal Range"
         } else {
             return "Below Average"
+        }
+    }
+    
+    // MARK: - ADHD Protocol Rating Methods
+    
+    private func getADHDAttentionRating(session: SessionData) -> String {
+        let responses = session.adhdProtocolResponses
+        guard !responses.isEmpty else { return "Not Available" }
+        
+        // Calculate mean reaction time for sustained attention
+        let reactionTimes = responses.compactMap { $0.reactionTime }
+        guard !reactionTimes.isEmpty else { return "Not Available" }
+        
+        let meanRT = reactionTimes.reduce(0, +) / Double(reactionTimes.count)
+        
+        // ADHD research thresholds (in seconds)
+        if meanRT > 1.5 {
+            return "Elevated Risk"  // Slow responses may indicate attention issues
+        } else if meanRT > 1.0 {
+            return "Borderline"
+        } else {
+            return "Normal Range"
+        }
+    }
+    
+    private func getADHDMemoryRating(session: SessionData) -> String {
+        let responses = session.adhdProtocolResponses
+        guard !responses.isEmpty else { return "Not Available" }
+        
+        // Calculate working memory performance by load condition
+        let highLoadResponses = responses.filter { $0.loadCondition == .high }
+        let lowLoadResponses = responses.filter { $0.loadCondition == .low }
+        
+        let highLoadAccuracy = highLoadResponses.isEmpty ? 0.0 : 
+            Double(highLoadResponses.filter { $0.isCorrect }.count) / Double(highLoadResponses.count)
+        let lowLoadAccuracy = lowLoadResponses.isEmpty ? 0.0 :
+            Double(lowLoadResponses.filter { $0.isCorrect }.count) / Double(lowLoadResponses.count)
+        
+        // Working memory capacity estimate (difference between conditions)
+        let memoryCapacity = lowLoadAccuracy - highLoadAccuracy
+        
+        if memoryCapacity < 0.1 {
+            return "Below Average"  // Small difference indicates poor working memory
+        } else if memoryCapacity < 0.2 {
+            return "Normal Range"
+        } else {
+            return "Above Average"
+        }
+    }
+    
+    private func getADHDVariabilityRating(session: SessionData) -> String {
+        let responses = session.adhdProtocolResponses
+        guard responses.count > 1 else { return "Not Available" }
+        
+        let reactionTimes = responses.compactMap { $0.reactionTime }
+        guard reactionTimes.count > 1 else { return "Not Available" }
+        
+        // Calculate standard deviation of reaction times
+        let mean = reactionTimes.reduce(0, +) / Double(reactionTimes.count)
+        let variance = reactionTimes.reduce(0) { $0 + pow($1 - mean, 2) } / Double(reactionTimes.count - 1)
+        let standardDeviation = sqrt(variance)
+        
+        // ADHD research: Higher variability indicates attention issues
+        if standardDeviation > 0.4 {
+            return "Elevated Risk"  // High variability
+        } else if standardDeviation > 0.25 {
+            return "Borderline"
+        } else {
+            return "Normal Range"
+        }
+    }
+    
+    private func getADHDErrorRating(session: SessionData) -> String {
+        let responses = session.adhdProtocolResponses
+        guard !responses.isEmpty else { return "Not Available" }
+        
+        // Calculate commission errors (false positives) and omission errors
+        let commissionErrors = responses.filter { !$0.isTarget && $0.userResponse }.count
+        let omissionErrors = responses.filter { $0.isTarget && !$0.userResponse }.count
+        let totalErrors = commissionErrors + omissionErrors
+        
+        let errorRate = Double(totalErrors) / Double(responses.count)
+        
+        if errorRate > 0.3 {
+            return "Elevated Risk"
+        } else if errorRate > 0.2 {
+            return "Borderline"
+        } else {
+            return "Normal Range"
+        }
+    }
+    
+    // MARK: - Consumer Pathway (YouTube) Rating Methods
+    
+    private func getVideoEngagementRating(session: SessionData) -> String {
+        // Analyze pupil data during YouTube videos for engagement
+        let videoMeasurements = session.pupilMeasurements.filter { measurement in
+            [.youtubeVideo1, .youtubeVideo2, .youtubeVideo3, .youtubeVideo4].contains(measurement.contentType)
+        }
+        
+        guard !videoMeasurements.isEmpty else { return "Not Available" }
+        
+        // Calculate mean pupil diameter during videos
+        let meanDiameter = videoMeasurements.reduce(0) { $0 + $1.diameterMM } / Float(videoMeasurements.count)
+        
+        // Engagement thresholds (larger pupils typically indicate higher engagement)
+        if meanDiameter > 4.5 {
+            return "High Engagement"
+        } else if meanDiameter > 4.0 {
+            return "Moderate Engagement"
+        } else {
+            return "Low Engagement"
+        }
+    }
+    
+    private func getVideoFocusStability(session: SessionData) -> String {
+        // Analyze pupil variability during videos for focus stability
+        let videoMeasurements = session.pupilMeasurements.filter { measurement in
+            [.youtubeVideo1, .youtubeVideo2, .youtubeVideo3, .youtubeVideo4].contains(measurement.contentType)
+        }
+        
+        guard videoMeasurements.count > 1 else { return "Not Available" }
+        
+        let diameters = videoMeasurements.map { $0.diameterMM }
+        let mean = diameters.reduce(0, +) / Float(diameters.count)
+        let variance = diameters.reduce(0) { $0 + pow($1 - mean, 2) } / Float(diameters.count - 1)
+        let standardDeviation = sqrt(variance)
+        
+        // Focus stability (lower variability = better focus)
+        if standardDeviation < 0.3 {
+            return "Stable Focus"
+        } else if standardDeviation < 0.5 {
+            return "Moderate Focus"
+        } else {
+            return "Variable Focus"
         }
     }
 }

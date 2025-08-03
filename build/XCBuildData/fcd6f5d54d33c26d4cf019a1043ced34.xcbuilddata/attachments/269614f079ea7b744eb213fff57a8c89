@@ -1,0 +1,4 @@
+module GTMSessionFetcherCore {
+umbrella "/Users/revathiprasad/Library/Developer/Xcode/DerivedData/PupillometryApp-enlykcidswgyiqdzkmtptpjqwirc/SourcePackages/checkouts/gtm-session-fetcher/Sources/Core/Public"
+export *
+}

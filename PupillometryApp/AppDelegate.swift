@@ -93,12 +93,36 @@ import Firebase
 
 @main
 class AppDelegate: UIResponder, UIApplicationDelegate {
+    
+    // MARK: - Crash Logging for Non-Debug Mode
+    private let crashLogger = CrashLogger()
+    private let memoryMonitor = MemoryPressureMonitor()
 
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
-        // Initialize Firebase on background queue to avoid blocking launch
-        DispatchQueue.global(qos: .background).async {
-            FirebaseApp.configure()
+        // CRITICAL: Setup crash logging FIRST before anything else
+        setupCrashHandling()
+        
+        // Check if app was previously crashed and log details
+        crashLogger.checkForPreviousCrash()
+        
+        // Initialize Firebase on main thread (required for UIApplication.delegate access)
+        FirebaseApp.configure()
+        
+        // Start memory pressure monitoring
+        memoryMonitor.startMonitoring()
+        
+        // Force dark mode app-wide for black background
+        if #available(iOS 13.0, *) {
+            UIApplication.shared.windows.forEach { window in
+                window.overrideUserInterfaceStyle = .dark
+            }
         }
+        
+        // Test MediaPipe integration - moved to background to prevent blocking
+        DispatchQueue.global(qos: .utility).async {
+            SimpleMediaPipeTest.runTest()
+        }
+        
         return true
     }
 
@@ -108,13 +132,67 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didDiscardSceneSessions sceneSessions: Set<UISceneSession>) {}
+    
+    // MARK: - Memory Warning Handling
+    func applicationDidReceiveMemoryWarning(_ application: UIApplication) {
+        print("⚠️ AppDelegate: Memory warning received - app may be terminated soon")
+        crashLogger.logMemoryWarning()
+        
+        // Emergency cleanup
+        PupillometryManager.shared.emergencyMemoryCleanup()
+        
+        // Force garbage collection
+        autoreleasepool {
+            // Let ARC clean up temporary objects
+        }
+    }
+    
+    func applicationWillTerminate(_ application: UIApplication) {
+        print("🛑 AppDelegate: App will terminate - logging final state")
+        crashLogger.logAppTermination()
+        saveContext()
+    }
+    
+    // MARK: - Crash Handling Setup
+    private func setupCrashHandling() {
+        // Setup uncaught exception handler
+        NSSetUncaughtExceptionHandler { exception in
+            print("💥 UNCAUGHT EXCEPTION: \(exception.name.rawValue)")
+            print("💥 Reason: \(exception.reason ?? "Unknown")")
+            print("💥 Stack trace: \(exception.callStackSymbols)")
+            
+            // Log to persistent storage
+            CrashLogger.logCrash(type: "Exception", details: [
+                "name": exception.name.rawValue,
+                "reason": exception.reason ?? "Unknown",
+                "stack": exception.callStackSymbols.joined(separator: "\n")
+            ])
+        }
+        
+        // Setup signal handler for EXC_BAD_ACCESS, SIGSEGV, etc.
+        signal(SIGABRT) { signal in
+            print("💥 SIGNAL ABORT (\(signal)) - App crashed")
+            CrashLogger.logCrash(type: "Signal", details: ["signal": "\(signal)", "type": "SIGABRT"])
+        }
+        
+        signal(SIGSEGV) { signal in
+            print("💥 SEGMENTATION FAULT (\(signal)) - Memory access violation")
+            CrashLogger.logCrash(type: "Signal", details: ["signal": "\(signal)", "type": "SIGSEGV"])
+        }
+        
+        signal(SIGBUS) { signal in
+            print("💥 BUS ERROR (\(signal)) - Hardware memory error")
+            CrashLogger.logCrash(type: "Signal", details: ["signal": "\(signal)", "type": "SIGBUS"])
+        }
+    }
 
     // MARK: - Core Data stack
     lazy var persistentContainer: NSPersistentContainer = {
         let container = NSPersistentContainer(name: "PupillometryApp")
         container.loadPersistentStores(completionHandler: { (storeDescription, error) in
             if let error = error as NSError? {
-                fatalError("Unresolved error \(error), \(error.userInfo)")
+                print("❌ Core Data error: \(error), \(error.userInfo)")
+                // Continue without Core Data rather than crashing
             }
         })
         return container
@@ -128,7 +206,8 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
                 try context.save()
             } catch {
                 let nserror = error as NSError
-                fatalError("Unresolved error \(nserror), \(nserror.userInfo)")
+                print("❌ Core Data save error: \(nserror), \(nserror.userInfo)")
+                // Continue without saving rather than crashing
             }
         }
     }

@@ -1,0 +1,4 @@
+module FirebaseAuthInterop {
+umbrella "/Users/revathiprasad/Library/Developer/Xcode/DerivedData/PupillometryApp-enlykcidswgyiqdzkmtptpjqwirc/SourcePackages/checkouts/firebase-ios-sdk/FirebaseAuth/Interop/Public"
+export *
+}

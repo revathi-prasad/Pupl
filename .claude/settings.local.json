@@ -1,0 +1,31 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(grep:*)",
+      "Bash(# Step 2: Clean local build artifacts\necho \"🧹 Cleaning local build artifacts...\"\nfind . -name \"*.xcresult\" -type d -exec rm -rf {} + 2>/dev/null || true\nfind . -name \"build\" -type d -exec rm -rf {} + 2>/dev/null || true\nfind . -name \".build\" -type d -exec rm -rf {} + 2>/dev/null || true\necho \"✅ Local build artifacts cleaned\")",
+      "Bash(# Step 3: Clean Swift Package Manager cache\necho \"🧹 Cleaning Swift Package Manager cache...\"\nrm -rf ~/Library/Caches/org.swift.swiftpm/\nrm -rf ~/Library/org.swift.swiftpm/\necho \"✅ Swift Package Manager cache cleaned\")",
+      "Bash(# Step 4: Clean Firebase/SPM packages from project\necho \"🧹 Cleaning project package cache...\"\nif [ -d \".swiftpm\" ]; then\n    rm -rf .swiftpm\n    echo \"✅ Project .swiftpm directory removed\"\nelse\n    echo \"ℹ️ No .swiftpm directory found\"\nfi)",
+      "Bash(xcodebuild:*)",
+      "Bash(swift:*)",
+      "Bash(rm:*)",
+      "Bash(python3:*)",
+      "Bash(textutil:*)",
+      "Bash(mdls:*)",
+      "WebFetch(domain:pmc.ncbi.nlm.nih.gov)",
+      "WebFetch(domain:www.sciencedirect.com)",
+      "Bash(ls:*)",
+      "Bash(pdftotext:*)",
+      "Bash(find:*)",
+      "Bash(rg:*)",
+      "Bash(timeout 60 xcodebuild:*)",
+      "Bash(timeout:*)",
+      "Bash(cat:*)",
+      "Bash(pod install:*)",
+      "Bash(python:*)",
+      "WebFetch(domain:stackoverflow.com)",
+      "Bash(plutil:*)",
+      "WebFetch(domain:link.springer.com)"
+    ],
+    "deny": []
+  }
+}

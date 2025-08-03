@@ -1,0 +1,4 @@
+module GoogleUtilities_MethodSwizzler {
+umbrella "/Users/revathiprasad/Library/Developer/Xcode/DerivedData/PupillometryApp-enlykcidswgyiqdzkmtptpjqwirc/SourcePackages/checkouts/GoogleUtilities/GoogleUtilities/MethodSwizzler/Public"
+export *
+}

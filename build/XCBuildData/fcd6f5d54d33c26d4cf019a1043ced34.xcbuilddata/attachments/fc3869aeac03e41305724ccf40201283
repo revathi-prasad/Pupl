@@ -1,0 +1,4 @@
+module FirebaseDatabaseInternal {
+umbrella "/Users/revathiprasad/Library/Developer/Xcode/DerivedData/PupillometryApp-enlykcidswgyiqdzkmtptpjqwirc/SourcePackages/checkouts/firebase-ios-sdk/FirebaseDatabase/Sources/Public"
+export *
+}

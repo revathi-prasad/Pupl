@@ -45,6 +45,11 @@ class AssessmentViewController: UIViewController {
     private var taskCompleted = false
     public var totalTrials: Int = 900
     
+    // Performance tracking
+    private var currentGradCPTStimulus: GradCPTTask.Stimulus?
+    private var currentMemoryTrialNumber: Int = 0
+    private var currentMemorySetSize: Int = 0
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         print("📱 AssessmentViewController: viewDidLoad() called")
@@ -140,8 +145,8 @@ class AssessmentViewController: UIViewController {
         gradCPTTask.delegate = self
         currentTask = gradCPTTask
         
-        // Optimized trial count for iPhone 11 memory constraints
-        gradCPTTask.totalTrials = 50 // Reduced for stability on iPhone 11
+        // Optimized trial count for quick testing
+        gradCPTTask.totalTrials = 10 // Reduced for quick pupil size testing
         print("📝 Set total trials to: \(gradCPTTask.totalTrials)")
         
         // Clear any existing views
@@ -288,7 +293,7 @@ class AssessmentViewController: UIViewController {
         print("📱 AssessmentViewController: prepare(for segue) called with identifier: \(segue.identifier ?? "nil")")
         
         if segue.identifier == "showResults" {
-            if let resultsVC = segue.destination as? ResultsViewController {
+            if segue.destination is ResultsViewController {
                 print("✅ Successfully preparing segue to ResultsViewController")
                 // Any setup needed for results can be done here
             } else {
@@ -303,6 +308,9 @@ class AssessmentViewController: UIViewController {
 extension AssessmentViewController: GradCPTTaskDelegate {
     func task(_ task: GradCPTTask, didPresentStimulus stimulus: GradCPTTask.Stimulus, at time: TimeInterval) {
         print("📺 AssessmentViewController: Presenting stimulus - Trial \(stimulus.trialNumber) of \(task.totalTrials)")
+        
+        // Store current stimulus for response tracking
+        currentGradCPTStimulus = stimulus
         
         // Memory pressure monitoring for critical trials
         if stimulus.trialNumber % 15 == 0 {
@@ -330,13 +338,29 @@ extension AssessmentViewController: GradCPTTaskDelegate {
             data: [
                 "trial": stimulus.trialNumber,
                 "type": stimulus.type == .target ? "target" : "nonTarget"
-            ]
+            ],
+            contentType: .gradcpt
         )
         pupillometryManager.recordEvent(event)
     }
     
     func task(_ task: GradCPTTask, didReceiveResponse correct: Bool, reactionTime: TimeInterval) {
         print("👆 AssessmentViewController: User response - correct: \(correct), RT: \(reactionTime)")
+        
+        // Track performance data
+        if let stimulus = currentGradCPTStimulus {
+            let isTarget = stimulus.type == .target
+            let responded = true // This method is only called when user responds
+            
+            // Add to session data for performance analysis
+            pupillometryManager.currentSession?.addGradCPTResponse(
+                isTarget: isTarget,
+                responded: responded,
+                correct: correct,
+                reactionTime: reactionTime,
+                trialNumber: stimulus.trialNumber
+            )
+        }
         
         // Record response event
         let event = TaskEvent(
@@ -345,7 +369,8 @@ extension AssessmentViewController: GradCPTTaskDelegate {
             data: [
                 "correct": correct,
                 "reactionTime": reactionTime
-            ]
+            ],
+            contentType: .gradcpt
         )
         pupillometryManager.recordEvent(event)
     }
@@ -372,8 +397,12 @@ extension AssessmentViewController: GradCPTTaskDelegate {
 }
 
 extension AssessmentViewController: MemoryTaskDelegate {
-    func memoryTask(_ task: MemoryTask, didStartTrial trial: Int, total: Int) {
-        print("🟦 AssessmentViewController: Memory task trial \(trial) of \(total)")
+    func memoryTask(_ task: MemoryTask, didStartTrial trial: Int, total: Int, setSize: Int) {
+        print("🟦 AssessmentViewController: Memory task trial \(trial) of \(total), set size \(setSize)")
+        
+        // Store current trial info for response tracking
+        currentMemoryTrialNumber = trial
+        currentMemorySetSize = setSize
         
         trialCounterLabel.text = "Trial \(trial) of \(total)"
         progressView.progress = Float(trial) / Float(total)
@@ -384,14 +413,24 @@ extension AssessmentViewController: MemoryTaskDelegate {
             type: .trialStart,
             data: [
                 "trial": trial,
-                "total": total
-            ]
+                "total": total,
+                "setSize": setSize
+            ],
+            contentType: .memory
         )
         pupillometryManager.recordEvent(event)
     }
     
-    func memoryTask(_ task: MemoryTask, didReceiveResponse correct: Bool, reactionTime: TimeInterval) {
-        print("👆 AssessmentViewController: Memory task response - correct: \(correct), RT: \(reactionTime)")
+    func memoryTask(_ task: MemoryTask, didReceiveResponse correct: Bool, reactionTime: TimeInterval, setSize: Int, trial: Int) {
+        print("👆 AssessmentViewController: Memory task response - correct: \(correct), RT: \(reactionTime), set size: \(setSize)")
+        
+        // Track performance data
+        pupillometryManager.currentSession?.addMemoryTaskResponse(
+            setSize: setSize,
+            correct: correct,
+            reactionTime: reactionTime,
+            trialNumber: trial
+        )
         
         // Record response event
         let event = TaskEvent(
@@ -399,8 +438,11 @@ extension AssessmentViewController: MemoryTaskDelegate {
             type: .response,
             data: [
                 "correct": correct,
-                "reactionTime": reactionTime
-            ]
+                "reactionTime": reactionTime,
+                "setSize": setSize,
+                "trial": trial
+            ],
+            contentType: .memory
         )
         pupillometryManager.recordEvent(event)
     }

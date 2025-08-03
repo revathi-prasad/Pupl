@@ -38,10 +38,11 @@ class CameraSetupViewController: UIViewController {
     @IBOutlet weak var statusLabel: UILabel!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
     
-    private let cameraManager = CameraManager()
+    private let cameraManager = CameraManager.shared
     private var previewLayer: AVCaptureVideoPreviewLayer?
     private let pupilDetector = PupilDetector() // CREATE ONCE, NOT EVERY FRAME
     private var faceDetected = false
+    private var lastFeedbackTime: TimeInterval = 0
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -63,6 +64,7 @@ class CameraSetupViewController: UIViewController {
         
         statusLabel.text = "Initializing camera..."
         statusLabel.font = UIFont.systemFont(ofSize: 16, weight: .medium)
+        statusLabel.textColor = .white
         statusLabel.textAlignment = .center
         statusLabel.adjustsFontSizeToFitWidth = true
         statusLabel.minimumScaleFactor = 0.8
@@ -101,40 +103,63 @@ class CameraSetupViewController: UIViewController {
     }
     
     private func setupCamera() {
+        print("📱 CameraSetupViewController: Setting up camera")
         cameraManager.delegate = self
         
         // Set up preview layer
         previewLayer = cameraManager.previewLayer(for: cameraPreviewView)
         if let previewLayer = previewLayer {
             cameraPreviewView.layer.addSublayer(previewLayer)
+            print("✅ CameraSetupViewController: Preview layer added")
+        } else {
+            print("❌ CameraSetupViewController: Failed to create preview layer")
         }
         
         // Start camera
+        print("📱 CameraSetupViewController: Starting camera session")
         cameraManager.startSession()
     }
     
     override func viewDidLayoutSubviews() {
         super.viewDidLayoutSubviews()
-        previewLayer?.frame = cameraPreviewView.bounds
+        if let previewLayer = previewLayer {
+            let bounds = cameraPreviewView.bounds
+            
+            // Validate bounds to prevent NaN errors
+            if bounds.width.isNaN || bounds.height.isNaN || bounds.width <= 0 || bounds.height <= 0 {
+                print("⚠️ CameraSetupViewController: Invalid bounds detected: \(bounds)")
+                return
+            }
+            
+            previewLayer.frame = bounds
+            print("📐 CameraSetupViewController: Updated preview layer frame to \(bounds)")
+        }
     }
     
     @IBAction func startCalibrationTapped(_ sender: UIButton) {
-        print("🔗 CameraSetupViewController: Starting calibration segue")
+        print("🔗 CameraSetupViewController: Button tapped - preparing for segue")
+        
+        // Prevent double-triggering
+        sender.isEnabled = false
         
         // CRITICAL: Stop camera before transitioning to prevent memory corruption
         cameraManager.stopSession()
         cameraManager.delegate = nil
         
-        performSegue(withIdentifier: "showCalibration", sender: self)
+        // Don't call performSegue here - let the storyboard segue handle it
+        // The segue should be connected directly from the button to the destination in the storyboard
+        print("✅ CameraSetupViewController: Camera stopped, ready for storyboard segue")
     }
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
-        // Cleanup camera when leaving view
-        print("🧹 CameraSetupViewController: Cleaning up camera resources")
-        cameraManager.stopSession()
-        cameraManager.delegate = nil
+        // Only cleanup if we're actually leaving (not just presenting another view)
+        if isMovingFromParent || isBeingDismissed {
+            print("🧹 CameraSetupViewController: Cleaning up camera resources")
+            cameraManager.stopSession()
+            cameraManager.delegate = nil
+        }
     }
     
     deinit {
@@ -146,11 +171,15 @@ class CameraSetupViewController: UIViewController {
 
 extension CameraSetupViewController: CameraManagerDelegate {
     func cameraManager(_ manager: CameraManager, didOutput sampleBuffer: CMSampleBuffer, from camera: CameraType) {
+        // Only process RGB frames for real-time feedback
+        guard camera == .rgb else { return }
+        
         // Only check face detection if not already detected
         guard !faceDetected else { return }
         
         // Use the single instance, not a new one every frame
         if pupilDetector.detectPupil(in: sampleBuffer) != nil {
+            print("👤 CameraSetupViewController: Face detected!")
             faceDetected = true
             
             DispatchQueue.main.async { [weak self] in
@@ -161,6 +190,32 @@ extension CameraSetupViewController: CameraManagerDelegate {
                 self.startCalibrationButton.isEnabled = true
                 self.startCalibrationButton.alpha = 1.0
             }
+        } else {
+            // Provide real-time positioning feedback
+            self.provideFacePositionFeedback(from: sampleBuffer)
+        }
+    }
+    
+    private func provideFacePositionFeedback(from sampleBuffer: CMSampleBuffer) {
+        // Throttle feedback updates to avoid UI spam
+        let now = CFAbsoluteTimeGetCurrent()
+        if now - lastFeedbackTime < 1.0 { return }
+        lastFeedbackTime = now
+        
+        DispatchQueue.main.async { [weak self] in
+            guard let self = self else { return }
+            
+            // Provide guidance based on common issues
+            let feedbackMessages = [
+                "Position your face in the center",
+                "Move closer to the camera (40-60cm)",
+                "Ensure good lighting on your face",
+                "Look directly at the camera",
+                "Remove any glasses if possible"
+            ]
+            
+            let randomMessage = feedbackMessages.randomElement() ?? "Adjusting position..."
+            self.statusLabel.text = randomMessage
         }
     }
     

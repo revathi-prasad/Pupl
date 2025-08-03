@@ -1,0 +1,1103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EyeLink Clinical Research Dashboard</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f8fafc;
+            color: #1e293b;
+            overflow: hidden;
+            font-weight: 400;
+        }
+
+        .dashboard {
+            display: grid;
+            grid-template-columns: 280px 1fr 340px;
+            grid-template-rows: 70px 1fr;
+            height: 100vh;
+            gap: 0;
+            background: #f8fafc;
+        }
+
+        .header {
+            grid-column: 1 / -1;
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 32px;
+            border-bottom: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .logo-section {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo-icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1e293b;
+        }
+
+        .status-bar {
+            display: flex;
+            align-items: center;
+            gap: 24px;
+        }
+
+        .recording-status {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            background: #fee2e2;
+            border: 1px solid #fecaca;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #dc2626;
+        }
+
+        .rec-dot {
+            width: 6px;
+            height: 6px;
+            background: #dc2626;
+            border-radius: 50%;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .session-timer {
+            font-family: 'SF Mono', monospace;
+            font-size: 16px;
+            font-weight: 500;
+            color: #374151;
+        }
+
+        .system-info {
+            font-size: 12px;
+            color: #6b7280;
+            background: #f3f4f6;
+            padding: 6px 12px;
+            border-radius: 4px;
+        }
+
+        .sidebar {
+            background: #ffffff;
+            padding: 24px;
+            overflow-y: auto;
+            border-right: 1px solid #e2e8f0;
+        }
+
+        .main-content {
+            background: #f8fafc;
+            display: grid;
+            grid-template-rows: 1fr 280px;
+            gap: 24px;
+            padding: 24px;
+        }
+
+        .video-section {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .video-panel {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .panel-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #374151;
+        }
+
+        .video-container {
+            position: relative;
+            width: 100%;
+            height: 280px;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .eye-video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .pupil-overlay {
+            position: absolute;
+            width: 40px;
+            height: 40px;
+            border: 2px solid #3b82f6;
+            border-radius: 50%;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            animation: pupilPulse 2s infinite;
+        }
+
+        @keyframes pupilPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); }
+            50% { transform: translate(-50%, -50%) scale(1.05); }
+        }
+
+        .gaze-cursor {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #f59e0b;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            animation: gazeBlink 1s infinite;
+        }
+
+        @keyframes gazeBlink {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.7; }
+        }
+
+        .charts-section {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 24px;
+        }
+
+        .chart-panel {
+            background: #ffffff;
+            border-radius: 12px;
+            padding: 24px;
+            border: 1px solid #e2e8f0;
+            box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+        }
+
+        .chart-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0;
+        }
+
+        .chart-subtitle {
+            font-size: 12px;
+            color: #64748b;
+            margin-top: 4px;
+        }
+
+        .chart-container {
+            width: 100%;
+            height: 160px;
+            position: relative;
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 20px;
+            font-size: 12px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            color: #64748b;
+        }
+
+        .legend-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .legend-right { background: #3b82f6; }
+        .legend-left { background: #ec4899; }
+
+        .metrics-panel {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .metric-card {
+            background: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .metric-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+        }
+
+        .metric-card.baseline::before { background: #3b82f6; }
+        .metric-card.velocity::before { background: #8b5cf6; }
+        .metric-card.recovery::before { background: #10b981; }
+
+        .metric-label {
+            font-size: 12px;
+            color: #64748b;
+            margin-bottom: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .metric-value {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .metric-card.baseline .metric-value { color: #3b82f6; }
+        .metric-card.velocity .metric-value { color: #8b5cf6; }
+        .metric-card.recovery .metric-value { color: #10b981; }
+
+        .metric-change {
+            font-size: 12px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        .change-positive { color: #10b981; }
+        .change-negative { color: #ef4444; }
+        .change-neutral { color: #64748b; }
+
+        .controls-panel {
+            background: #ffffff;
+            padding: 24px;
+            overflow-y: auto;
+            border-left: 1px solid #e2e8f0;
+        }
+
+        .section-header {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #374151;
+            padding-bottom: 8px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .info-group {
+            margin-bottom: 24px;
+            padding: 16px;
+            background: #f8fafc;
+            border-radius: 8px;
+            border: 1px solid #f1f5f9;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+
+        .info-row:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-label {
+            color: #64748b;
+            font-weight: 500;
+        }
+
+        .info-value {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        .status-indicator {
+            display: inline-block;
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            margin-right: 6px;
+        }
+
+        .status-good { background: #10b981; }
+        .status-fair { background: #f59e0b; }
+        .status-poor { background: #ef4444; }
+
+        .control-button {
+            width: 100%;
+            padding: 12px 16px;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            color: #374151;
+            cursor: pointer;
+            margin-bottom: 8px;
+            transition: all 0.2s;
+            font-size: 13px;
+            font-weight: 500;
+            border-radius: 6px;
+        }
+
+        .control-button:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .control-button.primary {
+            background: #3b82f6;
+            color: #ffffff;
+            border-color: #3b82f6;
+        }
+
+        .control-button.primary:hover {
+            background: #2563eb;
+        }
+
+        .control-button.danger {
+            background: #fee2e2;
+            color: #dc2626;
+            border-color: #fecaca;
+        }
+
+        .control-button.danger:hover {
+            background: #fecaca;
+        }
+
+        .threshold-controls {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-top: 12px;
+        }
+
+        .threshold-group {
+            text-align: center;
+        }
+
+        .threshold-label {
+            font-size: 11px;
+            color: #64748b;
+            margin-bottom: 6px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .threshold-input {
+            width: 100%;
+            height: 6px;
+            background: #e2e8f0;
+            border-radius: 3px;
+            outline: none;
+            appearance: none;
+            cursor: pointer;
+        }
+
+        .threshold-input::-webkit-slider-thumb {
+            appearance: none;
+            width: 16px;
+            height: 16px;
+            background: #3b82f6;
+            border-radius: 50%;
+            cursor: pointer;
+        }
+
+        .threshold-value {
+            font-size: 12px;
+            color: #3b82f6;
+            font-weight: 600;
+            margin-top: 6px;
+        }
+
+        .live-data {
+            font-family: 'SF Mono', monospace;
+            font-size: 10px;
+            color: #374151;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #e2e8f0;
+            height: 120px;
+            overflow-y: auto;
+            margin-top: 12px;
+        }
+
+        .data-stream {
+            white-space: nowrap;
+            margin-bottom: 2px;
+            opacity: 0.8;
+        }
+
+        .timestamp { color: #9ca3af; }
+        .coordinates { color: #3b82f6; }
+        .pupil-size { color: #f59e0b; }
+
+        .clinical-notes {
+            width: 100%;
+            height: 80px;
+            background: #ffffff;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            padding: 12px;
+            color: #374151;
+            font-size: 12px;
+            resize: vertical;
+            font-family: inherit;
+            transition: border-color 0.2s;
+        }
+
+        .clinical-notes:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        .clinical-notes::placeholder {
+            color: #9ca3af;
+        }
+
+        .participant-avatar {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 16px;
+            font-size: 18px;
+            color: white;
+            font-weight: 600;
+        }
+
+        .emergency-alert {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px;
+            border-radius: 6px;
+            border: 1px solid #fecaca;
+            margin-bottom: 16px;
+            display: none;
+            animation: alertFlash 1s infinite;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        @keyframes alertFlash {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.8; }
+        }
+
+        .calibration-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+        }
+
+        .cal-point {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #10b981;
+            border: 2px solid #ffffff;
+            border-radius: 50%;
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.4);
+        }
+
+        .cal-point-1 { top: 15%; left: 15%; }
+        .cal-point-2 { top: 15%; left: 50%; transform: translateX(-50%); }
+        .cal-point-3 { top: 15%; right: 15%; }
+        .cal-point-4 { top: 50%; left: 15%; transform: translateY(-50%); }
+        .cal-point-5 { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .cal-point-6 { top: 50%; right: 15%; transform: translateY(-50%); }
+        .cal-point-7 { bottom: 15%; left: 15%; }
+        .cal-point-8 { bottom: 15%; left: 50%; transform: translateX(-50%); }
+        .cal-point-9 { bottom: 15%; right: 15%; }
+
+        .export-section {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid #f1f5f9;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard">
+        <header class="header">
+            <div class="logo-section">
+                <div class="logo-icon">EL</div>
+                <div class="logo-text">EyeLink Clinical Dashboard</div>
+            </div>
+            <div class="status-bar">
+                <div class="recording-status">
+                    <div class="rec-dot"></div>
+                    <span>Recording</span>
+                </div>
+                <div class="session-timer">00:15:42</div>
+                <div class="system-info">2000 Hz • Binocular • Remote</div>
+            </div>
+        </header>
+
+        <aside class="sidebar">
+            <div class="section-header">Participant</div>
+            <div class="participant-avatar">MR</div>
+            <div class="info-group">
+                <div class="info-row">
+                    <span class="info-label">Subject ID</span>
+                    <span class="info-value">MED-2025-047</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Age</span>
+                    <span class="info-value">34 years</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Gender</span>
+                    <span class="info-value">Female</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Dominant Eye</span>
+                    <span class="info-value">Right</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Vision</span>
+                    <span class="info-value">Glasses</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Condition</span>
+                    <span class="info-value">Neurological Assessment</span>
+                </div>
+            </div>
+
+            <div class="section-header">Study Protocol</div>
+            <div class="info-group">
+                <div class="info-row">
+                    <span class="info-label">Protocol</span>
+                    <span class="info-value">Cognitive Load Assessment</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Trial</span>
+                    <span class="info-value">12 / 24</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Block</span>
+                    <span class="info-value">2 / 4</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Current Task</span>
+                    <span class="info-value">Visual Search</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Duration</span>
+                    <span class="info-value">45 seconds</span>
+                </div>
+            </div>
+
+            <div class="section-header">System Status</div>
+            <div class="info-group">
+                <div class="info-row">
+                    <span class="info-label">Pupil Status</span>
+                    <span class="info-value"><span class="status-indicator status-good"></span>OK</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">CR Status</span>
+                    <span class="info-value"><span class="status-indicator status-good"></span>OK</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Target Status</span>
+                    <span class="info-value"><span class="status-indicator status-good"></span>OK</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Head Position</span>
+                    <span class="info-value"><span class="status-indicator status-good"></span>Stable</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Data Quality</span>
+                    <span class="info-value"><span class="status-indicator status-good"></span>Excellent</span>
+                </div>
+            </div>
+
+            <div class="emergency-alert" id="emergencyAlert">
+                ⚠ Alert: Abnormal pupil response detected
+            </div>
+
+            <div class="live-data">
+                <div class="data-stream"><span class="timestamp">15:42:15.234</span> <span class="coordinates">X:503.7 Y:680.3</span> <span class="pupil-size">P:972.0</span></div>
+                <div class="data-stream"><span class="timestamp">15:42:15.235</span> <span class="coordinates">X:503.7 Y:680.1</span> <span class="pupil-size">P:972.0</span></div>
+                <div class="data-stream"><span class="timestamp">15:42:15.236</span> <span class="coordinates">X:503.8 Y:680.1</span> <span class="pupil-size">P:972.0</span></div>
+                <div class="data-stream"><span class="timestamp">15:42:15.237</span> <span class="coordinates">X:503.8 Y:680.2</span> <span class="pupil-size">P:972.0</span></div>
+                <div class="data-stream"><span class="timestamp">15:42:15.238</span> <span class="coordinates">X:503.9 Y:680.2</span> <span class="pupil-size">P:971.0</span></div>
+                <div class="data-stream"><span class="timestamp">15:42:15.239</span> <span class="coordinates">X:503.7 Y:680.1</span> <span class="pupil-size">P:971.0</span></div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="video-section">
+                <div class="video-panel">
+                    <div class="panel-title">Live Eye View - Right Eye</div>
+                    <div class="video-container">
+                        <canvas id="eyeVideo" class="eye-video"></canvas>
+                        <div class="pupil-overlay"></div>
+                        <div class="calibration-grid">
+                            <div class="cal-point cal-point-1"></div>
+                            <div class="cal-point cal-point-2"></div>
+                            <div class="cal-point cal-point-3"></div>
+                            <div class="cal-point cal-point-4"></div>
+                            <div class="cal-point cal-point-5"></div>
+                            <div class="cal-point cal-point-6"></div>
+                            <div class="cal-point cal-point-7"></div>
+                            <div class="cal-point cal-point-8"></div>
+                            <div class="cal-point cal-point-9"></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="video-panel">
+                    <div class="panel-title">Gaze View - Stimulus Display</div>
+                    <div class="video-container">
+                        <canvas id="gazeView" class="eye-video"></canvas>
+                        <div class="gaze-cursor" style="top: 45%; left: 60%;"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="charts-section">
+                <div class="chart-panel">
+                    <div class="chart-header">
+                        <div>
+                            <h2 class="chart-title">Real-time Pupil Size</h2>
+                            <div class="chart-subtitle">Last updated: 10:30 AM</div>
+                        </div>
+                    </div>
+                    
+                    <div class="chart-container">
+                        <canvas id="pupilChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-legend">
+                        <div class="legend-item">
+                            <div class="legend-dot legend-right"></div>
+                            <span>Right Pupil (mm): 4.2</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-dot legend-left"></div>
+                            <span>Left Pupil (mm): 4.1</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="metrics-panel">
+                    <div class="metric-card baseline">
+                        <div class="metric-label">Baseline Pupil Size</div>
+                        <div class="metric-value">4.2mm</div>
+                        <div class="metric-change change-positive">↑ 0.2mm</div>
+                    </div>
+                    <div class="metric-card velocity">
+                        <div class="metric-label">Constriction Velocity</div>
+                        <div class="metric-value">2.1mm/s</div>
+                        <div class="metric-change change-neutral">within range</div>
+                    </div>
+                    <div class="metric-card recovery">
+                        <div class="metric-label">Recovery Time</div>
+                        <div class="metric-value">0.9s</div>
+                        <div class="metric-change change-positive">↓ 0.1s</div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <aside class="controls-panel">
+            <div class="section-header">Calibration & Control</div>
+            <div class="info-group">
+                <div class="info-row">
+                    <span class="info-label">Last Calibration</span>
+                    <span class="info-value">15:26:42</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Accuracy</span>
+                    <span class="info-value"><span class="status-indicator status-good"></span>0.32°</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Max Error</span>
+                    <span class="info-value">0.89°</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Calibration Type</span>
+                    <span class="info-value">13-point</span>
+                </div>
+            </div>
+
+            <button class="control-button primary">Recalibrate System</button>
+            <button class="control-button">Validate Accuracy</button>
+            <button class="control-button">Drift Correction</button>
+
+            <div class="section-header" style="margin-top: 24px;">Threshold Controls</div>
+            <div class="threshold-controls">
+                <div class="threshold-group">
+                    <div class="threshold-label">Pupil Threshold</div>
+                    <input type="range" class="threshold-input" min="0.5" max="2.0" step="0.1" value="1.08">
+                    <div class="threshold-value">1.08</div>
+                </div>
+                <div class="threshold-group">
+                    <div class="threshold-label">CR Threshold</div>
+                    <input type="range" class="threshold-input" min="0.5" max="2.0" step="0.1" value="1.00">
+                    <div class="threshold-value">1.00</div>
+                </div>
+            </div>
+
+            <div class="section-header" style="margin-top: 24px;">Clinical Notes</div>
+            <textarea class="clinical-notes" placeholder="Enter clinical observations...">Patient shows normal pupillary response to visual stimuli. Tracking quality excellent throughout session.</textarea>
+
+            <div class="export-section">
+                <div class="section-header">Export & Analysis</div>
+                <button class="control-button">Export EDF Data</button>
+                <button class="control-button">Generate Report</button>
+                <button class="control-button danger">Stop Recording</button>
+
+                <div class="info-group" style="margin-top: 16px;">
+                    <div class="info-row">
+                        <span class="info-label">File Size</span>
+                        <span class="info-value">127.3 MB</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Samples</span>
+                        <span class="info-value">2,847,392</span>
+                    </div>
+                    <div class="info-row">
+                        <span class="info-label">Events</span>
+                        <span class="info-value">1,247</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+    </div>
+
+    <script>
+        // Simulate live eye video feed
+        const eyeCanvas = document.getElementById('eyeVideo');
+        const eyeCtx = eyeCanvas.getContext('2d');
+        eyeCanvas.width = 400;
+        eyeCanvas.height = 280;
+
+        function drawEye() {
+            eyeCtx.fillStyle = '#1a1a1a';
+            eyeCtx.fillRect(0, 0, 400, 280);
+            
+            // Draw eye shape
+            eyeCtx.fillStyle = '#3a3a3a';
+            eyeCtx.beginPath();
+            eyeCtx.ellipse(200, 140, 120, 60, 0, 0, 2 * Math.PI);
+            eyeCtx.fill();
+            
+            // Draw iris
+            eyeCtx.fillStyle = '#4a5568';
+            eyeCtx.beginPath();
+            eyeCtx.arc(200 + Math.sin(Date.now() * 0.001) * 10, 140, 35, 0, 2 * Math.PI);
+            eyeCtx.fill();
+            
+            // Draw pupil (animated size)
+            const pupilSize = 15 + Math.sin(Date.now() * 0.002) * 5;
+            eyeCtx.fillStyle = '#000000';
+            eyeCtx.beginPath();
+            eyeCtx.arc(200 + Math.sin(Date.now() * 0.001) * 10, 140, pupilSize, 0, 2 * Math.PI);
+            eyeCtx.fill();
+            
+            // Draw corneal reflection
+            eyeCtx.fillStyle = '#ffffff';
+            eyeCtx.beginPath();
+            eyeCtx.arc(190 + Math.sin(Date.now() * 0.001) * 10, 130, 4, 0, 2 * Math.PI);
+            eyeCtx.fill();
+        }
+
+        // Simulate gaze view
+        const gazeCanvas = document.getElementById('gazeView');
+        const gazeCtx = gazeCanvas.getContext('2d');
+        gazeCanvas.width = 400;
+        gazeCanvas.height = 280;
+
+        function drawGazeView() {
+            gazeCtx.fillStyle = '#1e293b';
+            gazeCtx.fillRect(0, 0, 400, 280);
+            
+            // Draw visual stimulus
+            gazeCtx.fillStyle = '#374151';
+            gazeCtx.fillRect(50, 50, 300, 180);
+            
+            gazeCtx.fillStyle = '#3b82f6';
+            gazeCtx.font = '24px -apple-system, BlinkMacSystemFont, sans-serif';
+            gazeCtx.textAlign = 'center';
+            gazeCtx.fillText('Visual Search Task', 200, 100);
+            
+            // Draw search targets
+            gazeCtx.fillStyle = '#10b981';
+            gazeCtx.beginPath();
+            gazeCtx.arc(120, 150, 8, 0, 2 * Math.PI);
+            gazeCtx.fill();
+            
+            gazeCtx.fillStyle = '#f59e0b';
+            gazeCtx.beginPath();
+            gazeCtx.arc(280, 180, 8, 0, 2 * Math.PI);
+            gazeCtx.fill();
+            
+            gazeCtx.fillStyle = '#8b5cf6';
+            gazeCtx.beginPath();
+            gazeCtx.arc(200, 200, 8, 0, 2 * Math.PI);
+            gazeCtx.fill();
+        }
+
+        // Simulate pupil size chart with dual data
+        const chartCanvas = document.getElementById('pupilChart');
+        const chartCtx = chartCanvas.getContext('2d');
+        chartCanvas.width = 600;
+        chartCanvas.height = 160;
+
+        let rightPupilData = [];
+        let leftPupilData = [];
+        for (let i = 0; i < 30; i++) {
+            rightPupilData.push(4.0 + Math.sin(i * 0.2) * 0.4 + Math.random() * 0.2);
+            leftPupilData.push(3.9 + Math.sin(i * 0.18) * 0.4 + Math.random() * 0.2);
+        }
+
+        function drawChart() {
+            chartCtx.clearRect(0, 0, 600, 160);
+            
+            // Chart background
+            chartCtx.fillStyle = '#ffffff';
+            chartCtx.fillRect(0, 0, 600, 160);
+            
+            // Draw grid lines
+            chartCtx.strokeStyle = '#f1f5f9';
+            chartCtx.lineWidth = 1;
+            
+            // Horizontal grid lines
+            for (let i = 0; i <= 6; i++) {
+                const y = (i / 6) * 120 + 20;
+                chartCtx.beginPath();
+                chartCtx.moveTo(50, y);
+                chartCtx.lineTo(580, y);
+                chartCtx.stroke();
+            }
+            
+            // Vertical grid lines
+            for (let i = 0; i <= 6; i++) {
+                const x = (i / 6) * 530 + 50;
+                chartCtx.beginPath();
+                chartCtx.moveTo(x, 20);
+                chartCtx.lineTo(x, 140);
+                chartCtx.stroke();
+            }
+            
+            // Draw Y-axis labels
+            chartCtx.fillStyle = '#64748b';
+            chartCtx.font = '10px -apple-system, BlinkMacSystemFont, sans-serif';
+            chartCtx.textAlign = 'right';
+            for (let i = 0; i <= 3; i++) {
+                const y = 140 - (i / 3) * 120 + 4;
+                const value = (2 + (i / 3) * 3).toFixed(1);
+                chartCtx.fillText(value, 45, y);
+            }
+            
+            // Draw X-axis labels (time)
+            chartCtx.textAlign = 'center';
+            for (let i = 0; i <= 6; i++) {
+                const x = (i / 6) * 530 + 50;
+                const time = `10:${(i * 5).toString().padStart(2, '0')}`;
+                chartCtx.fillText(time, x, 155);
+            }
+            
+            // Draw right pupil line
+            chartCtx.strokeStyle = '#3b82f6';
+            chartCtx.lineWidth = 2;
+            chartCtx.beginPath();
+            
+            for (let i = 0; i < rightPupilData.length; i++) {
+                const x = (i / (rightPupilData.length - 1)) * 530 + 50;
+                const y = 140 - ((rightPupilData[i] - 2) / 3) * 120;
+                if (i === 0) {
+                    chartCtx.moveTo(x, y);
+                } else {
+                    chartCtx.lineTo(x, y);
+                }
+            }
+            chartCtx.stroke();
+            
+            // Draw left pupil line
+            chartCtx.strokeStyle = '#ec4899';
+            chartCtx.lineWidth = 2;
+            chartCtx.beginPath();
+            
+            for (let i = 0; i < leftPupilData.length; i++) {
+                const x = (i / (leftPupilData.length - 1)) * 530 + 50;
+                const y = 140 - ((leftPupilData[i] - 2) / 3) * 120;
+                if (i === 0) {
+                    chartCtx.moveTo(x, y);
+                } else {
+                    chartCtx.lineTo(x, y);
+                }
+            }
+            chartCtx.stroke();
+            
+            // Draw data points
+            chartCtx.fillStyle = '#3b82f6';
+            for (let i = 0; i < rightPupilData.length; i++) {
+                const x = (i / (rightPupilData.length - 1)) * 530 + 50;
+                const y = 140 - ((rightPupilData[i] - 2) / 3) * 120;
+                chartCtx.beginPath();
+                chartCtx.arc(x, y, 3, 0, 2 * Math.PI);
+                chartCtx.fill();
+            }
+            
+            chartCtx.fillStyle = '#ec4899';
+            for (let i = 0; i < leftPupilData.length; i++) {
+                const x = (i / (leftPupilData.length - 1)) * 530 + 50;
+                const y = 140 - ((leftPupilData[i] - 2) / 3) * 120;
+                chartCtx.beginPath();
+                chartCtx.arc(x, y, 3, 0, 2 * Math.PI);
+                chartCtx.fill();
+            }
+            
+            // Add new data points
+            rightPupilData.shift();
+            leftPupilData.shift();
+            rightPupilData.push(4.0 + Math.sin(Date.now() * 0.002) * 0.4 + Math.random() * 0.3);
+            leftPupilData.push(3.9 + Math.sin(Date.now() * 0.0018) * 0.4 + Math.random() * 0.3);
+        }
+
+        // Update live data stream
+        function updateDataStream() {
+            const dataContainer = document.querySelector('.live-data');
+            const now = new Date();
+            const timestamp = now.toTimeString().split(' ')[0] + '.' + now.getMilliseconds().toString().padStart(3, '0');
+            const x = (503 + Math.random() * 2).toFixed(1);
+            const y = (680 + Math.random() * 2).toFixed(1);
+            const pupil = (970 + Math.random() * 4).toFixed(1);
+            
+            const newData = document.createElement('div');
+            newData.className = 'data-stream';
+            newData.innerHTML = `<span class="timestamp">${timestamp}</span> <span class="coordinates">X:${x} Y:${y}</span> <span class="pupil-size">P:${pupil}</span>`;
+            
+            dataContainer.insertBefore(newData, dataContainer.firstChild);
+            
+            // Keep only last 10 entries
+            while (dataContainer.children.length > 10) {
+                dataContainer.removeChild(dataContainer.lastChild);
+            }
+        }
+
+        // Update timer
+        let sessionTime = 942; // 15:42 in seconds
+        function updateTimer() {
+            sessionTime++;
+            const hours = Math.floor(sessionTime / 3600);
+            const minutes = Math.floor((sessionTime % 3600) / 60);
+            const seconds = sessionTime % 60;
+            document.querySelector('.session-timer').textContent = 
+                `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        // Simulate occasional alerts
+        function checkForAlerts() {
+            if (Math.random() < 0.02) { // 2% chance per update
+                document.getElementById('emergencyAlert').style.display = 'block';
+                setTimeout(() => {
+                    document.getElementById('emergencyAlert').style.display = 'none';
+                }, 5000);
+            }
+        }
+
+        // Animation loop
+        function animate() {
+            drawEye();
+            drawGazeView();
+            drawChart();
+            requestAnimationFrame(animate);
+        }
+
+        // Update data streams at different intervals
+        setInterval(updateDataStream, 500); // 2Hz for display
+        setInterval(updateTimer, 1000);
+        setInterval(checkForAlerts, 2000);
+
+        // Start animation
+        animate();
+
+        // Add interactivity to controls
+        document.querySelectorAll('.control-button').forEach(button => {
+            button.addEventListener('click', function() {
+                // Flash button to show interaction
+                const original = this.style.transform;
+                this.style.transform = 'scale(0.98)';
+                setTimeout(() => {
+                    this.style.transform = original;
+                }, 100);
+            });
+        });
+
+        // Update threshold values
+        document.querySelectorAll('.threshold-input').forEach(slider => {
+            slider.addEventListener('input', function() {
+                const valueDisplay = this.parentNode.querySelector('.threshold-value');
+                if (valueDisplay) {
+                    valueDisplay.textContent = this.value;
+                }
+            });
+        });
+    </script>
+</body>
+</html>

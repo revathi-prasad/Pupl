@@ -45,13 +45,14 @@ class WelcomeViewController: UIViewController {
     private func setupUI() {
         // Configure title - reduced size to prevent cutoff
         titleLabel.font = UIFont.systemFont(ofSize: 18, weight: .bold)
+        titleLabel.textColor = .white
         titleLabel.adjustsFontSizeToFitWidth = true
         titleLabel.minimumScaleFactor = 0.7
         titleLabel.numberOfLines = 2 // Allow wrapping if needed
         
         // Configure subtitle (if connected)
         subtitleLabel?.font = UIFont.systemFont(ofSize: 14, weight: .regular)
-        subtitleLabel?.textColor = .secondaryLabel
+        subtitleLabel?.textColor = .white
         
         // Configure buttons
         [startButton, aboutButton].forEach {
@@ -60,8 +61,8 @@ class WelcomeViewController: UIViewController {
         }
         
         startButton.backgroundColor = .systemBlue
-        aboutButton.backgroundColor = .systemGray5
-        aboutButton.setTitleColor(.darkText, for: .normal)
+        aboutButton.backgroundColor = .systemGray
+        aboutButton.setTitleColor(.white, for: .normal)
     }
     
     @IBAction func startButtonTapped(_ sender: UIButton) {

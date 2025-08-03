@@ -1,0 +1,1682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pupl - ADHD/Autism Assessment</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .phone-mockup {
+            width: 375px;
+            height: 812px;
+            background: #000;
+            border-radius: 40px;
+            padding: 8px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: #000;
+            border-radius: 32px;
+            overflow: hidden;
+            position: relative;
+            display: none;
+            color: #fff;
+        }
+
+        .screen.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 44px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 24px;
+            font-size: 14px;
+            font-weight: 600;
+            color: #fff;
+        }
+
+        .content {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+        }
+
+        .minimal-header {
+            text-align: center;
+            margin-bottom: 32px;
+            padding-bottom: 24px;
+            border-bottom: 1px solid #333;
+        }
+
+        .minimal-header h1 {
+            font-size: 28px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+
+        .minimal-header p {
+            font-size: 16px;
+            color: #999;
+            font-weight: 400;
+        }
+
+        .form-section {
+            margin-bottom: 32px;
+        }
+
+        .form-label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 8px;
+            display: block;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-input, .form-select {
+            width: 100%;
+            padding: 16px 0;
+            border: none;
+            border-bottom: 1px solid #333;
+            background: transparent;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .form-input:focus, .form-select:focus {
+            border-bottom-color: #fff;
+        }
+
+        .form-select option {
+            background: #000;
+            color: #fff;
+        }
+
+        .checkbox-item {
+            display: flex;
+            align-items: flex-start;
+            gap: 16px;
+            margin-bottom: 20px;
+            padding: 16px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .checkbox {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #666;
+            background: transparent;
+            appearance: none;
+            border-radius: 3px;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            margin-top: 2px;
+        }
+
+        .checkbox:checked {
+            background: #fff;
+            border-color: #fff;
+        }
+
+        .checkbox:checked::after {
+            content: '✓';
+            position: absolute;
+            top: -2px;
+            left: 2px;
+            color: #000;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .checkbox-label {
+            font-size: 14px;
+            line-height: 1.5;
+            color: #ccc;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 18px;
+            border: 1px solid #fff;
+            background: transparent;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn:hover:not(:disabled) {
+            background: #fff;
+            color: #000;
+        }
+
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            border-color: #666;
+            color: #666;
+        }
+
+        .btn-secondary:hover:not(:disabled) {
+            background: #666;
+            color: #000;
+        }
+
+        .bottom-nav {
+            padding: 24px;
+            border-top: 1px solid #333;
+            display: flex;
+            gap: 16px;
+        }
+
+        .progress {
+            height: 2px;
+            background: #333;
+            margin-bottom: 24px;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: #fff;
+            transition: width 0.5s ease;
+        }
+
+        /* DSM-5 Screening Forms */
+        .form-card {
+            background: linear-gradient(135deg, #111 0%, #222 100%);
+            border: 1px solid #333;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 20px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .form-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, #fff, transparent);
+            opacity: 0.1;
+        }
+
+        .screening-section {
+            margin-bottom: 32px;
+        }
+
+        .section-title {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .section-title::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 4px;
+            height: 16px;
+            background: #fff;
+        }
+
+        .question-item {
+            margin-bottom: 16px;
+            padding: 16px;
+            background: rgba(255,255,255,0.02);
+            border-radius: 8px;
+            border-left: 2px solid #333;
+            transition: all 0.3s;
+        }
+
+        .question-item:hover {
+            background: rgba(255,255,255,0.05);
+            border-left-color: #fff;
+        }
+
+        .question-text {
+            font-size: 14px;
+            line-height: 1.5;
+            margin-bottom: 12px;
+            color: #ccc;
+        }
+
+        .radio-group {
+            display: flex;
+            gap: 20px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .radio-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+        }
+
+        .radio {
+            width: 16px;
+            height: 16px;
+            border: 2px solid #666;
+            border-radius: 50%;
+            background: transparent;
+            appearance: none;
+            cursor: pointer;
+            position: relative;
+            transition: all 0.3s;
+        }
+
+        .radio:checked {
+            border-color: #fff;
+            background: #fff;
+        }
+
+        .radio:checked::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 6px;
+            height: 6px;
+            background: #000;
+            border-radius: 50%;
+        }
+
+        .radio-label {
+            font-size: 13px;
+            color: #999;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .severity-indicator {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-left: 8px;
+        }
+
+        .severity-mild { background: rgba(34, 197, 94, 0.2); color: #22c55e; }
+        .severity-moderate { background: rgba(249, 115, 22, 0.2); color: #f97316; }
+        .severity-severe { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
+
+        /* Custom Dropdown Styling */
+        .custom-select {
+            position: relative;
+            width: 100%;
+            margin-bottom: 32px;
+        }
+
+        .select-trigger {
+            width: 100%;
+            padding: 20px 0;
+            border: none;
+            border-bottom: 1px solid #333;
+            background: transparent;
+            color: #fff;
+            font-size: 16px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: border-color 0.3s;
+        }
+
+        .select-trigger:hover {
+            border-bottom-color: #666;
+        }
+
+        .select-trigger.active {
+            border-bottom-color: #fff;
+        }
+
+        .select-arrow {
+            transition: transform 0.3s;
+            font-size: 12px;
+        }
+
+        .select-trigger.active .select-arrow {
+            transform: rotate(180deg);
+        }
+
+        .select-options {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #111;
+            border: 1px solid #333;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            opacity: 0;
+            transform: translateY(-10px);
+            visibility: hidden;
+            transition: all 0.3s;
+        }
+
+        .select-options.active {
+            opacity: 1;
+            transform: translateY(0);
+            visibility: visible;
+        }
+
+        .select-option {
+            padding: 16px 20px;
+            cursor: pointer;
+            transition: background 0.3s;
+            border-bottom: 1px solid #222;
+        }
+
+        .select-option:last-child {
+            border-bottom: none;
+        }
+
+        .select-option:hover {
+            background: #222;
+        }
+
+        .select-option.selected {
+            background: #333;
+            color: #fff;
+        }
+
+        .status-list {
+            margin: 32px 0;
+        }
+
+        .status-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .status-indicator {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .status-good {
+            color: #fff;
+        }
+
+        /* Experiment Screens */
+        .experiment-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            background: #000;
+        }
+
+        .experiment-instruction {
+            position: absolute;
+            top: 80px;
+            left: 24px;
+            right: 24px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 300;
+            color: #fff;
+            z-index: 10;
+        }
+
+        /* gradCPT Face Stimulus */
+        .face-container {
+            width: 200px;
+            height: 250px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 40px 0;
+            border-radius: 50%;
+            overflow: hidden;
+            background: #000;
+            border: 2px solid #333;
+        }
+
+        .face-stimulus {
+            width: 180px;
+            height: 230px;
+            border-radius: 50%;
+            position: relative;
+            transition: all 800ms ease-in-out;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            filter: grayscale(100%);
+        }
+
+        .face-male {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjIzMCIgdmlld0JveD0iMCAwIDE4MCAyMzAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGVsbGlwc2UgY3g9IjkwIiBjeT0iMTE1IiByeD0iOTAiIHJ5PSIxMTUiIGZpbGw9IiNkZGRkZGQiLz48ZWxsaXBzZSBjeD0iNjUiIGN5PSI4MCIgcng9IjEyIiByeT0iMTIiIGZpbGw9IiMzMzMiLz48ZWxsaXBzZSBjeD0iMTE1IiBjeT0iODAiIHJ4PSIxMiIgcnk9IjEyIiBmaWxsPSIjMzMzIi8+PHJlY3QgeD0iNTAiIHk9IjY1IiB3aWR0aD0iMjAiIGhlaWdodD0iNCIgZmlsbD0iIzQ0NCIvPjxyZWN0IHg9IjExMCIgeT0iNjUiIHdpZHRoPSIyMCIgaGVpZ2h0PSI0IiBmaWxsPSIjNDQ0Ii8+PGVsbGlwc2UgY3g9IjkwIiBjeT0iMTA1IiByeD0iNiIgcnk9IjEwIiBmaWxsPSIjYmJiIi8+PGVsbGlwc2UgY3g9IjkwIiBjeT0iMTQwIiByeD0iMTgiIHJ5PSI0IiBmaWxsPSIjNTU1Ii8+PC9zdmc+');
+        }
+
+        .face-female {
+            background-image: url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTgwIiBoZWlnaHQ9IjIzMCIgdmlld0JveD0iMCAwIDE4MCAyMzAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGVsbGlwc2UgY3g9IjkwIiBjeT0iMTE1IiByeD0iOTAiIHJ5PSIxMTUiIGZpbGw9IiNlZWVlZWUiLz48ZWxsaXBzZSBjeD0iNjUiIGN5PSI4MCIgcng9IjEyIiByeT0iMTIiIGZpbGw9IiMzMzMiLz48ZWxsaXBzZSBjeD0iMTE1IiBjeT0iODAiIHJ4PSIxMiIgcnk9IjEyIiBmaWxsPSIjMzMzIi8+PHJlY3QgeD0iNTIiIHk9IjY3IiB3aWR0aD0iMTYiIGhlaWdodD0iMyIgZmlsbD0iIzY2NiIvPjxyZWN0IHg9IjExMiIgeT0iNjciIHdpZHRoPSIxNiIgaGVpZ2h0PSIzIiBmaWxsPSIjNjY2Ii8+PGVsbGlwc2UgY3g9IjkwIiBjeT0iMTA1IiByeD0iNSIgcnk9IjgiIGZpbGw9IiNjY2MiLz48ZWxsaXBzZSBjeD0iOTAiIGN5PSIxNDUiIHJ4PSIyMiIgcnk9IjYiIGZpbGw9IiM3NzciLz48ZWxsaXBzZSBjeD0iOTAiIGN5PSI0MCIgcng9IjcwIiByeT0iMzUiIGZpbGw9IiNhYWEiLz48L3N2Zz4=');
+        }
+
+        /* Change Localization Grid */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 24px;
+            margin: 40px 0;
+            max-width: 280px;
+        }
+
+        .memory-square {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #333;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .memory-square:hover {
+            border-color: #fff;
+            transform: scale(1.05);
+        }
+
+        .memory-square.changed {
+            border-color: #fff;
+            box-shadow: 0 0 20px rgba(255,255,255,0.3);
+        }
+
+        /* ACTUAL COLORS for memory squares */
+        .color-red { background: #ef4444; }
+        .color-green { background: #22c55e; }
+        .color-blue { background: #3b82f6; }
+        .color-yellow { background: #f59e0b; }
+        .color-purple { background: #8b5cf6; }
+        .color-cyan { background: #06b6d4; }
+
+        /* Trial Info */
+        .trial-info {
+            position: absolute;
+            bottom: 120px;
+            left: 24px;
+            right: 24px;
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .trial-counter {
+            margin-bottom: 8px;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .response-prompt {
+            font-size: 16px;
+            color: #999;
+            margin-top: 12px;
+        }
+
+        /* Calibration */
+        .calibration-container {
+            flex: 1;
+            position: relative;
+            background: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .calibration-grid {
+            position: relative;
+            width: 300px;
+            height: 220px;
+        }
+
+        .calibration-point {
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            position: absolute;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .calibration-point.active {
+            opacity: 1;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.3); }
+        }
+
+        .point-1 { top: 0; left: 0; }
+        .point-2 { top: 0; left: 50%; transform: translateX(-50%); }
+        .point-3 { top: 0; right: 0; }
+        .point-4 { top: 50%; left: 0; transform: translateY(-50%); }
+        .point-5 { top: 50%; left: 50%; transform: translate(-50%, -50%); }
+        .point-6 { top: 50%; right: 0; transform: translateY(-50%); }
+        .point-7 { bottom: 0; left: 0; }
+        .point-8 { bottom: 0; left: 50%; transform: translateX(-50%); }
+        .point-9 { bottom: 0; right: 0; }
+
+        .calibration-instruction {
+            position: absolute;
+            top: 60px;
+            left: 24px;
+            right: 24px;
+            text-align: center;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 300;
+        }
+
+        /* Environmental Check */
+        .env-metrics {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin: 32px 0;
+        }
+
+        .metric {
+            text-align: center;
+            padding: 20px 12px;
+            border: 1px solid #333;
+        }
+
+        .metric-value {
+            font-size: 24px;
+            font-weight: 300;
+            margin-bottom: 8px;
+            font-family: 'SF Mono', monospace;
+        }
+
+        .metric-label {
+            font-size: 11px;
+            color: #666;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* Camera Preview */
+        .camera-preview {
+            width: 100%;
+            height: 200px;
+            background: #111;
+            border: 2px solid #333;
+            border-radius: 12px;
+            margin: 20px 0;
+            position: relative;
+            overflow: hidden;
+            display: none;
+        }
+
+        .camera-preview.active {
+            display: block;
+        }
+
+        .camera-feed {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, #222 25%, transparent 25%), 
+                        linear-gradient(-45deg, #222 25%, transparent 25%),
+                        linear-gradient(45deg, transparent 75%, #222 75%), 
+                        linear-gradient(-45deg, transparent 75%, #222 75%);
+            background-size: 20px 20px;
+            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
+            animation: cameraFeed 2s linear infinite;
+        }
+
+        @keyframes cameraFeed {
+            0% { background-position: 0 0, 0 10px, 10px -10px, -10px 0px; }
+            100% { background-position: 20px 20px, 20px 30px, 30px 10px, 10px 20px; }
+        }
+
+        .face-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80px;
+            height: 100px;
+            border: 2px solid #fff;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Navigation */
+        .nav-controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 8px;
+            z-index: 1000;
+        }
+
+        .nav-btn {
+            width: 32px;
+            height: 32px;
+            background: rgba(0,0,0,0.8);
+            color: #666;
+            border: 1px solid #333;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+        }
+
+        .nav-btn.active {
+            background: #fff;
+            color: #000;
+            border-color: #fff;
+        }
+
+        .warning-bar {
+            background: #333;
+            color: #fff;
+            padding: 12px 24px;
+            text-align: center;
+            font-size: 14px;
+            border-bottom: 1px solid #444;
+        }
+
+        .results-section {
+            margin-bottom: 32px;
+        }
+
+        .score-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px 0;
+            border-bottom: 1px solid #222;
+        }
+
+        .score-label {
+            font-size: 16px;
+            font-weight: 400;
+        }
+
+        .score-value {
+            font-size: 14px;
+            color: #999;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .disclaimer {
+            background: rgba(255, 165, 0, 0.1);
+            border: 1px solid #ff9500;
+            border-radius: 8px;
+            padding: 16px;
+            margin: 24px 0;
+            font-size: 13px;
+            line-height: 1.5;
+            color: #ccc;
+        }
+
+        .disclaimer strong {
+            color: #ff9500;
+        }
+
+        /* Background for scene distractors */
+        .scene-background {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            opacity: 0.15;
+            background-image: 
+                radial-gradient(circle at 20% 30%, #333 1px, transparent 1px),
+                radial-gradient(circle at 80% 70%, #444 1px, transparent 1px),
+                radial-gradient(circle at 40% 80%, #222 1px, transparent 1px);
+            background-size: 40px 40px, 60px 60px, 80px 80px;
+            animation: drift 20s infinite linear;
+        }
+
+        @keyframes drift {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(-40px, -40px); }
+        }
+    </style>
+</head>
+<body>
+    <div class="phone-mockup">
+        <!-- Screen 1: Welcome/Consent -->
+        <div class="screen active" id="screen1">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="minimal-header">
+                    <h1>Pupl</h1>
+                    <p>ADHD & Autism Assessment</p>
+                </div>
+                
+                <div class="form-section">
+                    <p style="font-size: 16px; line-height: 1.6; margin-bottom: 32px; color: #ccc;">
+                        This application conducts evidence-based cognitive assessments using eye-tracking technology to screen for ADHD and Autism Spectrum Disorder characteristics.
+                    </p>
+                    
+                    <div class="checkbox-item">
+                        <input type="checkbox" class="checkbox" id="consent1">
+                        <label for="consent1" class="checkbox-label">
+                            I understand this is a screening tool and not a substitute for professional clinical diagnosis.
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-item">
+                        <input type="checkbox" class="checkbox" id="consent2">
+                        <label for="consent2" class="checkbox-label">
+                            I consent to eye-tracking data collection and processing for assessment purposes.
+                        </label>
+                    </div>
+                    
+                    <div class="checkbox-item">
+                        <input type="checkbox" class="checkbox" id="consent3">
+                        <label for="consent3" class="checkbox-label">
+                            I am 18+ years old or have appropriate consent for participation.
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn" onclick="nextScreen()" disabled id="consent-btn">
+                    Continue
+                </button>
+            </div>
+        </div>
+
+        <!-- Screen 2: Demographics -->
+        <div class="screen" id="screen2">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="progress">
+                    <div class="progress-fill" style="width: 15%;"></div>
+                </div>
+                
+                <div class="minimal-header">
+                    <h1>Demographics</h1>
+                </div>
+                
+                <div class="form-section">
+                    <label class="form-label">Full Name</label>
+                    <input type="text" class="form-input" placeholder="Enter your full name">
+                </div>
+                
+                <div class="form-section">
+                    <label class="form-label">Email Address</label>
+                    <input type="email" class="form-input" placeholder="Enter your email">
+                </div>
+                
+                <div class="form-section">
+                    <label class="form-label">Age</label>
+                    <input type="number" class="form-input" placeholder="Enter age" min="18" max="100">
+                </div>
+                
+                <div class="custom-select">
+                    <label class="form-label">Gender</label>
+                    <div class="select-trigger" onclick="toggleSelect('gender')">
+                        <span id="gender-selected">Select gender</span>
+                        <span class="select-arrow">▼</span>
+                    </div>
+                    <div class="select-options" id="gender-options">
+                        <div class="select-option" onclick="selectOption('gender', 'Male')">Male</div>
+                        <div class="select-option" onclick="selectOption('gender', 'Female')">Female</div>
+                        <div class="select-option" onclick="selectOption('gender', 'Non-binary')">Non-binary</div>
+                        <div class="select-option" onclick="selectOption('gender', 'Other')">Other</div>
+                        <div class="select-option" onclick="selectOption('gender', 'Prefer not to say')">Prefer not to say</div>
+                    </div>
+                </div>
+                
+                <div class="custom-select">
+                    <label class="form-label">Previous Diagnosis</label>
+                    <div class="select-trigger" onclick="toggleSelect('diagnosis')">
+                        <span id="diagnosis-selected">Select previous diagnosis</span>
+                        <span class="select-arrow">▼</span>
+                    </div>
+                    <div class="select-options" id="diagnosis-options">
+                        <div class="select-option" onclick="selectOption('diagnosis', 'No previous diagnosis')">No previous diagnosis</div>
+                        <div class="select-option" onclick="selectOption('diagnosis', 'ADHD')">ADHD</div>
+                        <div class="select-option" onclick="selectOption('diagnosis', 'Autism')">Autism</div>
+                        <div class="select-option" onclick="selectOption('diagnosis', 'Both ADHD and Autism')">Both ADHD and Autism</div>
+                        <div class="select-option" onclick="selectOption('diagnosis', 'Other neurodevelopmental')">Other neurodevelopmental</div>
+                    </div>
+                </div>
+                
+                <div class="custom-select">
+                    <label class="form-label">Current Medications</label>
+                    <div class="select-trigger" onclick="toggleSelect('medications')">
+                        <span id="medications-selected">Select medication status</span>
+                        <span class="select-arrow">▼</span>
+                    </div>
+                    <div class="select-options" id="medications-options">
+                        <div class="select-option" onclick="selectOption('medications', 'No medications')">No medications</div>
+                        <div class="select-option" onclick="selectOption('medications', 'Stimulant medications')">Stimulant medications</div>
+                        <div class="select-option" onclick="selectOption('medications', 'Non-stimulant ADHD meds')">Non-stimulant ADHD meds</div>
+                        <div class="select-option" onclick="selectOption('medications', 'Other psychiatric meds')">Other psychiatric meds</div>
+                        <div class="select-option" onclick="selectOption('medications', 'Multiple medications')">Multiple medications</div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+                <button class="btn" onclick="nextScreen()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 3: ADHD Screening -->
+        <div class="screen" id="screen3">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="progress">
+                    <div class="progress-fill" style="width: 25%;"></div>
+                </div>
+                
+                <div class="minimal-header">
+                    <h1>ADHD Screening</h1>
+                    <p>DSM-5 Criteria Assessment</p>
+                </div>
+                
+                <div class="screening-section">
+                    <div class="section-title">Inattention Symptoms</div>
+                    <p style="color: #666; font-size: 13px; margin-bottom: 20px;">How often do you experience these symptoms? (Past 6 months)</p>
+                    
+                    <div class="form-card">
+                        <div class="question-item">
+                            <div class="question-text">
+                                Difficulty sustaining attention in tasks or activities
+                                <span class="severity-indicator severity-severe">Core Symptom</span>
+                            </div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd1" value="0" class="radio" id="adhd1_0">
+                                    <label for="adhd1_0" class="radio-label">Never</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd1" value="1" class="radio" id="adhd1_1">
+                                    <label for="adhd1_1" class="radio-label">Rarely</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd1" value="2" class="radio" id="adhd1_2">
+                                    <label for="adhd1_2" class="radio-label">Sometimes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd1" value="3" class="radio" id="adhd1_3">
+                                    <label for="adhd1_3" class="radio-label">Often</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">
+                                Makes careless mistakes or overlooks details
+                                <span class="severity-indicator severity-moderate">Attention</span>
+                            </div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd2" value="0" class="radio" id="adhd2_0">
+                                    <label for="adhd2_0" class="radio-label">Never</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd2" value="1" class="radio" id="adhd2_1">
+                                    <label for="adhd2_1" class="radio-label">Rarely</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd2" value="2" class="radio" id="adhd2_2">
+                                    <label for="adhd2_2" class="radio-label">Sometimes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd2" value="3" class="radio" id="adhd2_3">
+                                    <label for="adhd2_3" class="radio-label">Often</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">
+                                Easily distracted by external stimuli
+                                <span class="severity-indicator severity-moderate">Attention</span>
+                            </div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd3" value="0" class="radio" id="adhd3_0">
+                                    <label for="adhd3_0" class="radio-label">Never</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd3" value="1" class="radio" id="adhd3_1">
+                                    <label for="adhd3_1" class="radio-label">Rarely</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd3" value="2" class="radio" id="adhd3_2">
+                                    <label for="adhd3_2" class="radio-label">Sometimes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd3" value="3" class="radio" id="adhd3_3">
+                                    <label for="adhd3_3" class="radio-label">Often</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="screening-section">
+                    <div class="section-title">Hyperactivity/Impulsivity</div>
+                    
+                    <div class="form-card">
+                        <div class="question-item">
+                            <div class="question-text">
+                                Fidgets or squirms when seated
+                                <span class="severity-indicator severity-mild">Motor</span>
+                            </div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd4" value="0" class="radio" id="adhd4_0">
+                                    <label for="adhd4_0" class="radio-label">Never</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd4" value="1" class="radio" id="adhd4_1">
+                                    <label for="adhd4_1" class="radio-label">Rarely</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd4" value="2" class="radio" id="adhd4_2">
+                                    <label for="adhd4_2" class="radio-label">Sometimes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="adhd4" value="3" class="radio" id="adhd4_3">
+                                    <label for="adhd4_3" class="radio-label">Often</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+                <button class="btn" onclick="nextScreen()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 4: Autism Screening -->
+        <div class="screen" id="screen4">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="progress">
+                    <div class="progress-fill" style="width: 35%;"></div>
+                </div>
+                
+                <div class="minimal-header">
+                    <h1>Autism Screening</h1>
+                    <p>DSM-5 Criteria Assessment</p>
+                </div>
+                
+                <div class="screening-section">
+                    <div class="section-title">Social Communication</div>
+                    
+                    <div class="form-card">
+                        <div class="question-item">
+                            <div class="question-text">
+                                Difficulty with back-and-forth conversation
+                                <span class="severity-indicator severity-severe">Core Symptom</span>
+                            </div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="autism1" value="0" class="radio" id="autism1_0">
+                                    <label for="autism1_0" class="radio-label">Never</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism1" value="1" class="radio" id="autism1_1">
+                                    <label for="autism1_1" class="radio-label">Rarely</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism1" value="2" class="radio" id="autism1_2">
+                                    <label for="autism1_2" class="radio-label">Sometimes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism1" value="3" class="radio" id="autism1_3">
+                                    <label for="autism1_3" class="radio-label">Often</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">
+                                Difficulty understanding nonverbal communication
+                                <span class="severity-indicator severity-moderate">Social</span>
+                            </div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="autism2" value="0" class="radio" id="autism2_0">
+                                    <label for="autism2_0" class="radio-label">Never</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism2" value="1" class="radio" id="autism2_1">
+                                    <label for="autism2_1" class="radio-label">Rarely</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism2" value="2" class="radio" id="autism2_2">
+                                    <label for="autism2_2" class="radio-label">Sometimes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism2" value="3" class="radio" id="autism2_3">
+                                    <label for="autism2_3" class="radio-label">Often</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="question-item">
+                            <div class="question-text">
+                                Insistence on sameness and routines
+                                <span class="severity-indicator severity-severe">Restricted</span>
+                            </div>
+                            <div class="radio-group">
+                                <div class="radio-item">
+                                    <input type="radio" name="autism3" value="0" class="radio" id="autism3_0">
+                                    <label for="autism3_0" class="radio-label">Never</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism3" value="1" class="radio" id="autism3_1">
+                                    <label for="autism3_1" class="radio-label">Rarely</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism3" value="2" class="radio" id="autism3_2">
+                                    <label for="autism3_2" class="radio-label">Sometimes</label>
+                                </div>
+                                <div class="radio-item">
+                                    <input type="radio" name="autism3" value="3" class="radio" id="autism3_3">
+                                    <label for="autism3_3" class="radio-label">Often</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+                <button class="btn" onclick="nextScreen()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 5: Camera Setup -->
+        <div class="screen" id="screen5">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="progress">
+                    <div class="progress-fill" style="width: 45%;"></div>
+                </div>
+                
+                <div class="minimal-header">
+                    <h1>Camera Setup</h1>
+                </div>
+                
+                <div style="text-align: center; margin: 40px 0;">
+                    <div style="width: 200px; height: 200px; border: 2px solid #333; margin: 0 auto 24px; display: flex; align-items: center; justify-content: center; background: #111;">
+                        <span style="font-size: 48px; opacity: 0.3;">📱</span>
+                    </div>
+                    <p style="color: #999; margin-bottom: 32px;">
+                        Front camera access required for eye tracking
+                    </p>
+                </div>
+                
+                <div class="status-list">
+                    <div class="status-item">
+                        <span>Distance</span>
+                        <span class="status-indicator">18-24 inches optimal</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Lighting</span>
+                        <span class="status-indicator">Face well-lit</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Position</span>
+                        <span class="status-indicator">Stable seating</span>
+                    </div>
+                </div>
+                
+                <button class="btn" onclick="requestCamera()" style="margin-bottom: 16px;">
+                    Enable Camera
+                </button>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+                <button class="btn" onclick="nextScreen()" disabled id="camera-btn">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 6: Environmental Check -->
+        <div class="screen" id="screen6">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="progress">
+                    <div class="progress-fill" style="width: 55%;"></div>
+                </div>
+                
+                <div class="minimal-header">
+                    <h1>Environment Check</h1>
+                </div>
+                
+                <div class="env-metrics">
+                    <div class="metric">
+                        <div class="metric-value" id="distance-value">22"</div>
+                        <div class="metric-label">Distance</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="lux-value">485</div>
+                        <div class="metric-label">Lux</div>
+                    </div>
+                    <div class="metric">
+                        <div class="metric-value" id="blink-value">14</div>
+                        <div class="metric-label">Blinks/min</div>
+                    </div>
+                </div>
+                
+                <div class="camera-preview active">
+                    <div class="camera-feed"></div>
+                    <div class="face-overlay"></div>
+                    <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(0,0,0,0.7); color: #fff; padding: 4px 8px; border-radius: 4px; font-size: 12px;">
+                        LIVE
+                    </div>
+                </div>
+                
+                <div class="status-list">
+                    <div class="status-item">
+                        <span>Face Detection</span>
+                        <span class="status-indicator status-good">Active</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Eye Tracking</span>
+                        <span class="status-indicator status-good">Initialized</span>
+                    </div>
+                    <div class="status-item">
+                        <span>Lighting Quality</span>
+                        <span class="status-indicator status-good">Optimal</span>
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+                <button class="btn" onclick="nextScreen()">Start Calibration</button>
+            </div>
+        </div>
+
+        <!-- Screen 7: 9-Point Calibration -->
+        <div class="screen" id="screen7">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="calibration-container">
+                <div class="calibration-instruction">
+                    Follow the white dot with your eyes<br>
+                    <span style="font-size: 14px; color: #666;">Point 5 of 9</span>
+                </div>
+                <div class="calibration-grid">
+                    <div class="calibration-point point-1"></div>
+                    <div class="calibration-point point-2"></div>
+                    <div class="calibration-point point-3"></div>
+                    <div class="calibration-point point-4"></div>
+                    <div class="calibration-point point-5 active"></div>
+                    <div class="calibration-point point-6"></div>
+                    <div class="calibration-point point-7"></div>
+                    <div class="calibration-point point-8"></div>
+                    <div class="calibration-point point-9"></div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">Restart</button>
+                <button class="btn" onclick="nextScreen()">Continue</button>
+            </div>
+        </div>
+
+        <!-- Screen 8: Task Instructions -->
+        <div class="screen" id="screen8">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="progress">
+                    <div class="progress-fill" style="width: 70%;"></div>
+                </div>
+                
+                <div class="minimal-header">
+                    <h1>Assessment Tasks</h1>
+                </div>
+                
+                <div style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #333;">
+                    <h3 style="margin-bottom: 16px; font-weight: 500;">Task 1: Gradual CPT</h3>
+                    <p style="color: #999; margin-bottom: 16px; line-height: 1.5;">
+                        Faces will gradually transition between male and female. Respond when you see a <strong>male face</strong>. Do not respond to female faces.
+                    </p>
+                    <div style="color: #666; font-size: 14px;">
+                        Duration: ~12 minutes • 900 trials
+                    </div>
+                </div>
+                
+                <div style="margin-bottom: 32px; padding-bottom: 24px; border-bottom: 1px solid #333;">
+                    <h3 style="margin-bottom: 16px; font-weight: 500;">Task 2: Change Localization</h3>
+                    <p style="color: #999; margin-bottom: 16px; line-height: 1.5;">
+                        Remember arrays of colored squares. After a delay, identify which square changed color by tapping it.
+                    </p>
+                    <div style="color: #666; font-size: 14px;">
+                        Duration: ~8 minutes • 240 trials
+                    </div>
+                </div>
+            </div>
+            <div class="bottom-nav">
+                <button class="btn btn-secondary" onclick="prevScreen()">Back</button>
+                <button class="btn" onclick="nextScreen()">Start Task 1</button>
+            </div>
+        </div>
+
+        <!-- Screen 9: Gradual CPT Task -->
+        <div class="screen" id="screen9">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="warning-bar" id="warning-bar" style="display: none;">
+                ⚠ Environment changed - Adjust position and lighting
+            </div>
+            <div class="scene-background"></div>
+            <div class="experiment-container">
+                <div class="experiment-instruction">
+                    Tap for MALE faces • Do not tap for FEMALE faces
+                </div>
+                
+                <div class="face-container">
+                    <div class="face-stimulus face-male" id="face-stimulus">
+                    </div>
+                </div>
+                
+                <div class="trial-info">
+                    <div class="trial-counter">Trial 347 of 900</div>
+                    <div style="color: #444; font-size: 12px;">Time: 6:23 remaining</div>
+                    <div class="response-prompt">Tap anywhere to respond</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 10: Change Localization Task -->
+        <div class="screen" id="screen10">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="experiment-container">
+                <div class="experiment-instruction">
+                    Which square changed color?
+                </div>
+                
+                <div class="memory-grid">
+                    <div class="memory-square color-red" onclick="selectSquare(this)"></div>
+                    <div class="memory-square color-green" onclick="selectSquare(this)"></div>
+                    <div class="memory-square color-blue" onclick="selectSquare(this)"></div>
+                    <div class="memory-square color-yellow" onclick="selectSquare(this)"></div>
+                    <div class="memory-square color-purple changed" onclick="selectSquare(this)"></div>
+                    <div class="memory-square color-cyan" onclick="selectSquare(this)"></div>
+                </div>
+                
+                <div class="trial-info">
+                    <div class="trial-counter">Trial 127 of 240</div>
+                    <div style="color: #444; font-size: 12px;">Set size: 6 • Delay: 1000ms</div>
+                    <div class="response-prompt">Tap the changed square</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Screen 11: Results -->
+        <div class="screen" id="screen11">
+            <div class="status-bar">
+                <span>9:41</span>
+                <span>100%</span>
+            </div>
+            <div class="content">
+                <div class="minimal-header">
+                    <h1>Assessment Complete</h1>
+                    <p>Analysis finished</p>
+                </div>
+                
+                <div class="results-section">
+                    <h3 style="margin-bottom: 24px; font-weight: 500; font-size: 18px;">Performance Summary</h3>
+                    
+                    <div class="score-item">
+                        <span class="score-label">Sustained Attention (gradCPT)</span>
+                        <span class="score-value">Elevated Risk</span>
+                    </div>
+                    
+                    <div class="score-item">
+                        <span class="score-label">Working Memory Capacity</span>
+                        <span class="score-value">Normal Range</span>
+                    </div>
+                    
+                    <div class="score-item">
+                        <span class="score-label">Response Variability</span>
+                        <span class="score-value">High</span>
+                    </div>
+                    
+                    <div class="score-item">
+                        <span class="score-label">Commission Errors</span>
+                        <span class="score-value">Above Average</span>
+                    </div>
+                </div>
+                
+                <div class="disclaimer">
+                    <strong>Clinical Disclaimer:</strong> These results are for screening purposes only and do not constitute a clinical diagnosis. Consult with a qualified healthcare professional for comprehensive evaluation.
+                </div>
+                
+                <button class="btn">Export Report</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Navigation Controls -->
+    <div class="nav-controls">
+        <button class="nav-btn active" onclick="showScreen(1)">1</button>
+        <button class="nav-btn" onclick="showScreen(2)">2</button>
+        <button class="nav-btn" onclick="showScreen(3)">3</button>
+        <button class="nav-btn" onclick="showScreen(4)">4</button>
+        <button class="nav-btn" onclick="showScreen(5)">5</button>
+        <button class="nav-btn" onclick="showScreen(6)">6</button>
+        <button class="nav-btn" onclick="showScreen(7)">7</button>
+        <button class="nav-btn" onclick="showScreen(8)">8</button>
+        <button class="nav-btn" onclick="showScreen(9)">9</button>
+        <button class="nav-btn" onclick="showScreen(10)">10</button>
+        <button class="nav-btn" onclick="showScreen(11)">11</button>
+    </div>
+
+    <script>
+        let currentScreen = 1;
+        let currentCalibrationPoint = 5;
+        let faceTransitionState = 0;
+        
+        function showScreen(screenNum) {
+            const screens = document.querySelectorAll('.screen');
+            screens.forEach(screen => screen.classList.remove('active'));
+            
+            document.getElementById(`screen${screenNum}`).classList.add('active');
+            
+            const navBtns = document.querySelectorAll('.nav-btn');
+            navBtns.forEach(btn => btn.classList.remove('active'));
+            navBtns[screenNum - 1].classList.add('active');
+            
+            currentScreen = screenNum;
+            
+            if (screenNum === 9) {
+                startGradCPTDemo();
+            } else if (screenNum === 10) {
+                startChangeLocalizationDemo();
+            } else if (screenNum === 7) {
+                startCalibrationDemo();
+            }
+        }
+        
+        function nextScreen() {
+            if (currentScreen < 11) {
+                showScreen(currentScreen + 1);
+            }
+        }
+        
+        function prevScreen() {
+            if (currentScreen > 1) {
+                showScreen(currentScreen - 1);
+            }
+        }
+        
+        // Consent validation
+        document.addEventListener('DOMContentLoaded', function() {
+            const checkboxes = document.querySelectorAll('#screen1 .checkbox');
+            const consentBtn = document.getElementById('consent-btn');
+            
+            function checkConsent() {
+                const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+                consentBtn.disabled = !allChecked;
+            }
+            
+            checkboxes.forEach(cb => cb.addEventListener('change', checkConsent));
+        });
+        
+        function requestCamera() {
+            const cameraBtn = document.getElementById('camera-btn');
+            setTimeout(() => {
+                cameraBtn.disabled = false;
+                cameraBtn.textContent = 'Camera Active';
+            }, 1500);
+        }
+        
+        function startCalibrationDemo() {
+            const points = document.querySelectorAll('.calibration-point');
+            const instruction = document.querySelector('.calibration-instruction');
+            let currentPoint = 0;
+            const sequence = [4, 0, 2, 6, 8, 1, 3, 5, 7];
+            
+            function showNextPoint() {
+                points.forEach(p => p.classList.remove('active'));
+                
+                if (currentPoint < sequence.length) {
+                    points[sequence[currentPoint]].classList.add('active');
+                    instruction.innerHTML = `Follow the white dot with your eyes<br><span style="font-size: 14px; color: #666;">Point ${currentPoint + 1} of 9</span>`;
+                    currentPoint++;
+                    setTimeout(showNextPoint, 2000);
+                } else {
+                    instruction.innerHTML = `Calibration complete<br><span style="font-size: 14px; color: #666;">Eye tracking ready</span>`;
+                }
+            }
+            
+            showNextPoint();
+        }
+        
+        function startGradCPTDemo() {
+            const faceStimulus = document.getElementById('face-stimulus');
+            const trialCounter = document.querySelector('.trial-counter');
+            const warningBar = document.getElementById('warning-bar');
+            let trialNum = 347;
+            let isMale = true;
+            
+            function transitionFace() {
+                if (faceStimulus) {
+                    faceStimulus.style.transition = 'all 800ms ease-in-out';
+                    
+                    if (isMale) {
+                        faceStimulus.className = 'face-stimulus face-female';
+                    } else {
+                        faceStimulus.className = 'face-stimulus face-male';
+                    }
+                    
+                    isMale = !isMale;
+                    trialNum++;
+                    if (trialCounter) {
+                        trialCounter.textContent = `Trial ${trialNum} of 900`;
+                    }
+                    
+                    if (trialNum === 350 && warningBar) {
+                        warningBar.style.display = 'block';
+                        setTimeout(() => {
+                            warningBar.style.display = 'none';
+                        }, 3000);
+                    }
+                }
+            }
+            
+            const transitionInterval = setInterval(transitionFace, 1200);
+            setTimeout(() => clearInterval(transitionInterval), 10000);
+        }
+        
+        function startChangeLocalizationDemo() {
+            const squares = document.querySelectorAll('.memory-square');
+            const trialCounter = document.querySelector('#screen10 .trial-counter');
+            let trialNum = 127;
+            
+            function newTrial() {
+                squares.forEach(sq => sq.classList.remove('changed'));
+                
+                const changedIndex = Math.floor(Math.random() * squares.length);
+                
+                setTimeout(() => {
+                    if (squares[changedIndex]) {
+                        squares[changedIndex].classList.add('changed');
+                    }
+                    trialNum++;
+                    if (trialCounter) {
+                        trialCounter.textContent = `Trial ${trialNum} of 240`;
+                    }
+                }, 1000);
+            }
+            
+            const trialInterval = setInterval(newTrial, 3000);
+            setTimeout(() => clearInterval(trialInterval), 12000);
+        }
+        
+        function selectSquare(square) {
+            document.querySelectorAll('.memory-square').forEach(sq => 
+                sq.style.borderColor = '#333'
+            );
+            
+            square.style.borderColor = '#fff';
+            square.style.transform = 'scale(1.1)';
+            
+            setTimeout(() => {
+                square.style.transform = 'scale(1)';
+            }, 200);
+        }
+        
+        // Custom dropdown functionality
+        function toggleSelect(selectId) {
+            const trigger = document.querySelector(`#${selectId}-options`).previousElementSibling;
+            const options = document.getElementById(`${selectId}-options`);
+            
+            // Close other dropdowns
+            document.querySelectorAll('.select-options.active').forEach(el => {
+                if (el !== options) {
+                    el.classList.remove('active');
+                    el.previousElementSibling.classList.remove('active');
+                }
+            });
+            
+            // Toggle current dropdown
+            options.classList.toggle('active');
+            trigger.classList.toggle('active');
+        }
+        
+        function selectOption(selectId, value) {
+            document.getElementById(`${selectId}-selected`).textContent = value;
+            document.getElementById(`${selectId}-options`).classList.remove('active');
+            document.querySelector(`#${selectId}-options`).previousElementSibling.classList.remove('active');
+        }
+        
+        // Close dropdowns when clicking outside
+        document.addEventListener('click', function(e) {
+            if (!e.target.closest('.custom-select')) {
+                document.querySelectorAll('.select-options.active').forEach(el => {
+                    el.classList.remove('active');
+                    el.previousElementSibling.classList.remove('active');
+                });
+            }
+        });
+        
+        // Environmental monitoring with live updates
+        function simulateEnvironmentalMonitoring() {
+            const distanceValue = document.getElementById('distance-value');
+            const luxValue = document.getElementById('lux-value');
+            const blinkValue = document.getElementById('blink-value');
+            
+            setInterval(() => {
+                if (currentScreen === 6) {
+                    // Simulate realistic variations
+                    const distance = 20 + Math.random() * 6;
+                    const lux = 450 + Math.random() * 100;
+                    const blinks = 12 + Math.random() * 6;
+                    
+                    if (distanceValue) distanceValue.textContent = Math.round(distance) + '"';
+                    if (luxValue) luxValue.textContent = Math.round(lux);
+                    if (blinkValue) blinkValue.textContent = Math.round(blinks);
+                }
+            }, 1000);
+        }
+        
+        // Start monitoring systems
+        simulateEnvironmentalMonitoring();
+    </script>
+</body>
+</html>
