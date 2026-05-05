@@ -100,3 +100,4 @@ env/
 *.lock
 !Podfile.lock
 Carthage/Build/
+Internal/
